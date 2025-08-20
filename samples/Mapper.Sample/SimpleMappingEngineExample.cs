@@ -61,7 +61,7 @@ namespace SimpleMapper.Examples
         public static void BasicUsageExample()
         {
             // Step 1: Create and configure the mapping engine
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
             
             // Step 2: Create mappings (this is done once, typically at application startup)
             engine.CreateMap<UserEntity, UserDTO>();
@@ -99,7 +99,7 @@ namespace SimpleMapper.Examples
 
         public static void AdvancedConfigurationExample()
         {
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
 
             // Configure mapping with ignored properties
             engine.CreateMap<UserEntity, UserDTO>()
@@ -131,7 +131,7 @@ namespace SimpleMapper.Examples
 
         public static void CollectionMappingExample()
         {
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
             
             // Configure mappings
             engine.CreateMap<UserEntity, UserDTO>();
@@ -176,7 +176,7 @@ namespace SimpleMapper.Examples
 
         public static void PerformanceBenefitsExample()
         {
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
             
             // Configure mappings once
             engine.CreateMap<UserEntity, UserDTO>();

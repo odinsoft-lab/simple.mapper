@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using SimpleMapper.Internal;
 
 namespace SimpleMapper
 {
     /// <summary>
     /// Simple mapping engine with pre-compiled mappings for better performance
     /// </summary>
-    public class SimpleMappingEngine
+    public class MappingEngine
     {
-        private readonly ConcurrentDictionary<TypePair, IMappingExpression> _mappingExpressions = new();
-        private readonly ConcurrentDictionary<TypePair, Delegate> _compiledMappings = new();
+        private readonly ConcurrentDictionary<Internal.TypePair, IMappingExpression> _mappingExpressions = new();
+        private readonly ConcurrentDictionary<Internal.TypePair, Delegate> _compiledMappings = new();
         private readonly object _compilationLock = new();
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace SimpleMapper
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
             where TDestination : new()
         {
-            var typePair = new TypePair(typeof(TSource), typeof(TDestination));
+            var typePair = new Internal.TypePair(typeof(TSource), typeof(TDestination));
             var expression = new MappingExpression<TSource, TDestination>(this);
             _mappingExpressions[typePair] = expression;
             return expression;
@@ -37,7 +38,7 @@ namespace SimpleMapper
             if (source == null)
                 return default(TDestination);
 
-            var typePair = new TypePair(typeof(TSource), typeof(TDestination));
+            var typePair = new Internal.TypePair(typeof(TSource), typeof(TDestination));
             var mapper = GetOrCompileMapper<TSource, TDestination>(typePair);
             return mapper(source);
         }
@@ -51,14 +52,14 @@ namespace SimpleMapper
             if (sourceList == null)
                 return null;
 
-            var mapper = GetOrCompileMapper<TSource, TDestination>(new TypePair(typeof(TSource), typeof(TDestination)));
+            var mapper = GetOrCompileMapper<TSource, TDestination>(new Internal.TypePair(typeof(TSource), typeof(TDestination)));
             return sourceList.Select(mapper).ToList();
         }
 
         /// <summary>
         /// Get or compile a mapper function for the given type pair
         /// </summary>
-        private Func<TSource, TDestination> GetOrCompileMapper<TSource, TDestination>(TypePair typePair)
+        private Func<TSource, TDestination> GetOrCompileMapper<TSource, TDestination>(Internal.TypePair typePair)
             where TDestination : new()
         {
             if (_compiledMappings.TryGetValue(typePair, out var cached))
@@ -82,7 +83,7 @@ namespace SimpleMapper
         /// <summary>
         /// Compile a mapper function using expression trees
         /// </summary>
-        private Func<TSource, TDestination> CompileMapper<TSource, TDestination>(TypePair typePair)
+        private Func<TSource, TDestination> CompileMapper<TSource, TDestination>(Internal.TypePair typePair)
             where TDestination : new()
         {
             var sourceParam = Expression.Parameter(typeof(TSource), "source");
@@ -143,7 +144,7 @@ namespace SimpleMapper
                         // Create a null check and recursive mapping
                         var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
                         
-                        var mapMethod = typeof(SimpleMappingEngine).GetMethod(nameof(Map))
+                        var mapMethod = typeof(MappingEngine).GetMethod(nameof(Map))
                             .MakeGenericMethod(sourceProperty.PropertyType, destinationProperty.PropertyType);
                         
                         var mappedValue = Expression.Call(
@@ -170,7 +171,7 @@ namespace SimpleMapper
                             var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
 
                             // Use MapList for collection mapping
-                            var mapListMethod = typeof(SimpleMappingEngine).GetMethod(nameof(MapList))
+                            var mapListMethod = typeof(MappingEngine).GetMethod(nameof(MapList))
                                 .MakeGenericMethod(sourceElementType, destinationElementType);
 
                             var mappedCollection = Expression.Call(
@@ -242,147 +243,6 @@ namespace SimpleMapper
                 return collectionType.GetGenericArguments()[0];
 
             return null;
-        }
-
-        /// <summary>
-        /// Type pair for caching mappings
-        /// </summary>
-        private struct TypePair : IEquatable<TypePair>
-        {
-            public Type SourceType { get; }
-            public Type DestinationType { get; }
-
-            public TypePair(Type sourceType, Type destinationType)
-            {
-                SourceType = sourceType;
-                DestinationType = destinationType;
-            }
-
-            public bool Equals(TypePair other)
-            {
-                return SourceType == other.SourceType && DestinationType == other.DestinationType;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is TypePair other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return ((SourceType?.GetHashCode() ?? 0) * 397) ^ (DestinationType?.GetHashCode() ?? 0);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Mapping expression interface
-    /// </summary>
-    public interface IMappingExpression
-    {
-        Type SourceType { get; }
-        Type DestinationType { get; }
-    }
-
-    /// <summary>
-    /// Generic mapping expression interface
-    /// </summary>
-    public interface IMappingExpression<TSource, TDestination> : IMappingExpression
-    {
-        IMappingExpression<TSource, TDestination> Ignore(Expression<Func<TDestination, object>> destinationMember);
-        IMappingExpression<TSource, TDestination> ForMember<TMember>(
-            Expression<Func<TDestination, TMember>> destinationMember,
-            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions);
-    }
-
-    /// <summary>
-    /// Member configuration expression interface
-    /// </summary>
-    public interface IMemberConfigurationExpression<TSource, TDestination, TMember>
-    {
-        void MapFrom(Expression<Func<TSource, TMember>> sourceMember);
-        void Ignore();
-    }
-
-    /// <summary>
-    /// Mapping expression implementation
-    /// </summary>
-    internal class MappingExpression<TSource, TDestination> : IMappingExpression<TSource, TDestination>
-        where TDestination : new()
-    {
-        private readonly SimpleMappingEngine _engine;
-        private readonly HashSet<string> _ignoredProperties = new();
-        private readonly Dictionary<string, object> _customMappings = new();
-
-        public Type SourceType => typeof(TSource);
-        public Type DestinationType => typeof(TDestination);
-
-        public MappingExpression(SimpleMappingEngine engine)
-        {
-            _engine = engine;
-        }
-
-        public IMappingExpression<TSource, TDestination> Ignore(Expression<Func<TDestination, object>> destinationMember)
-        {
-            var memberName = GetMemberName(destinationMember);
-            _ignoredProperties.Add(memberName);
-            return this;
-        }
-
-        public IMappingExpression<TSource, TDestination> ForMember<TMember>(
-            Expression<Func<TDestination, TMember>> destinationMember,
-            Action<IMemberConfigurationExpression<TSource, TDestination, TMember>> memberOptions)
-        {
-            var memberName = GetMemberName(destinationMember);
-            var config = new MemberConfigurationExpression<TSource, TDestination, TMember>();
-            memberOptions(config);
-            _customMappings[memberName] = config;
-            return this;
-        }
-
-        public bool IsPropertyIgnored(string propertyName)
-        {
-            return _ignoredProperties.Contains(propertyName);
-        }
-
-        public object GetCustomMapping(string propertyName)
-        {
-            return _customMappings.TryGetValue(propertyName, out var mapping) ? mapping : null;
-        }
-
-        private string GetMemberName<T>(Expression<Func<TDestination, T>> expression)
-        {
-            if (expression.Body is MemberExpression memberExpression)
-                return memberExpression.Member.Name;
-            
-            if (expression.Body is UnaryExpression unaryExpression && 
-                unaryExpression.Operand is MemberExpression unaryMemberExpression)
-                return unaryMemberExpression.Member.Name;
-            
-            throw new ArgumentException("Expression must be a member expression");
-        }
-    }
-
-    /// <summary>
-    /// Member configuration expression implementation
-    /// </summary>
-    internal class MemberConfigurationExpression<TSource, TDestination, TMember> 
-        : IMemberConfigurationExpression<TSource, TDestination, TMember>
-    {
-        public Expression<Func<TSource, TMember>> SourceExpression { get; private set; }
-        public bool IsIgnored { get; private set; }
-
-        public void MapFrom(Expression<Func<TSource, TMember>> sourceMember)
-        {
-            SourceExpression = sourceMember;
-        }
-
-        public void Ignore()
-        {
-            IsIgnored = true;
         }
     }
 }

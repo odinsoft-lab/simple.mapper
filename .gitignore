@@ -94,3 +94,10 @@ Desktop.ini
 # Python virtual environments (if any)
 venv/
 ENV/
+
+
+# Project-specific
+.claude/
+nul
+.mcp.json
+CLAUDE.local.md

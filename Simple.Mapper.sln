@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{2D6C1C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F6B2B4A3-7A39-4B50-AE5C-7D6E2E9E2D54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Sample", "sample\Simple.Sample\Simple.Sample.csproj", "{2EAF0C9D-6C10-4F7B-9C9E-8D5F0C3A4D2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Sample", "samples\Mapper.Sample\Mapper.Sample.csproj", "{2EAF0C9D-6C10-4F7B-9C9E-8D5F0C3A4D2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Tests", "tests\Simple.Tests\Simple.Tests.csproj", "{8C5C8F24-0B3D-4B6A-A8A2-6F9C5C13E9A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Tests", "tests\Mapper.Tests\Mapper.Tests.csproj", "{8C5C8F24-0B3D-4B6A-A8A2-6F9C5C13E9A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

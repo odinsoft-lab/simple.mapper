@@ -8,7 +8,7 @@ namespace SimpleMapper
     /// <summary>
     /// Simple mapping utility for Entity to DTO conversion without SimpleMapper configuration
     /// </summary>
-    public static class SimpleMapper
+    public static class Mapper
     {
         /// <summary>
         /// Map a single entity to DTO
@@ -110,7 +110,7 @@ namespace SimpleMapper
             var destination = Activator.CreateInstance(destinationType);
             
             // Use reflection to call MapProperties with runtime types
-            var mapMethod = typeof(SimpleMapper).GetMethod(nameof(MapProperties), BindingFlags.NonPublic | BindingFlags.Static);
+            var mapMethod = typeof(Mapper).GetMethod(nameof(MapProperties), BindingFlags.NonPublic | BindingFlags.Static);
             var genericMethod = mapMethod.MakeGenericMethod(sourceType, destinationType);
             genericMethod.Invoke(null, new[] { sourceValue, destination });
             
@@ -240,41 +240,6 @@ namespace SimpleMapper
                 return collectionType.GetGenericArguments()[0];
 
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extension methods for SimpleMapper
-    /// </summary>
-    public static class SimpleMapperExtensions
-    {
-        /// <summary>
-        /// Map entity to DTO using extension method
-        /// </summary>
-        public static TDestination MapTo<TDestination>(this object source)
-            where TDestination : new()
-        {
-            if (source == null)
-                return default(TDestination);
-
-            return SimpleMapper.Map<object, TDestination>(source);
-        }
-
-        /// <summary>
-        /// Map collection of entities to DTOs using extension method
-        /// </summary>
-        public static List<TDestination> MapToList<TDestination>(this System.Collections.IEnumerable source)
-            where TDestination : new()
-        {
-            if (source == null)
-                return null;
-
-            var result = new List<TDestination>();
-            foreach (var item in source)
-            {
-                result.Add(item.MapTo<TDestination>());
-            }
-            return result;
         }
     }
 }

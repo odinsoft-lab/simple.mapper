@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Xunit;
+﻿using System.Diagnostics;
 using OmmitedDatabaseModel3;
 using OmmitedDTOModel3;
+using System.Threading.Tasks;
 
-namespace SimpleMapper.UnitTests
+namespace Simple.Tests
 {
     public class SimpleMappingEngineTests
     {
-        private SimpleMappingEngine CreateConfiguredEngine()
+        private MappingEngine CreateConfiguredEngine()
         {
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
             
             // Configure all mappings
             engine.CreateMap<Entity1, EntityDTO1>();
@@ -243,7 +240,7 @@ namespace SimpleMapper.UnitTests
         public void Map_WithIgnoredProperty_ShouldNotMapIgnoredProperty()
         {
             // Arrange
-            var engine = new SimpleMappingEngine();
+            var engine = new MappingEngine();
             engine.CreateMap<Entity17, EntityDTO17>()
                 .Ignore(d => d.Id); // Ignore Id property
 
@@ -331,7 +328,7 @@ namespace SimpleMapper.UnitTests
         }
 
         [Fact]
-        public void Map_MultipleMappingsSimultaneously_ShouldHandleConcurrency()
+        public async Task Map_MultipleMappingsSimultaneously_ShouldHandleConcurrency()
         {
             // Arrange
             var engine = CreateConfiguredEngine();
@@ -346,7 +343,7 @@ namespace SimpleMapper.UnitTests
                 tasks.Add(task);
             }
 
-            var results = System.Threading.Tasks.Task.WhenAll(tasks).Result;
+            var results = await System.Threading.Tasks.Task.WhenAll(tasks);
 
             // Assert
             Assert.NotNull(results);
