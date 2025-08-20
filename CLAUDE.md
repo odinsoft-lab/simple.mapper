@@ -100,8 +100,8 @@ When modifying the mapping engine:
 ### Testing Structure
 
 Tests are organized by mapping scenario:
-- `MapAtRuntime/`: Test entities for runtime mapping scenarios
-- `MapAtRuntimeWithCollections/`: Test entities with collection properties
+- `Models/`: Test entities for runtime mapping scenarios
+- `Collections/`: Test entities with collection properties
 - Each entity pair (Entity1/EntityDTO1, etc.) tests different mapping complexities
 
 ## Development Workflow

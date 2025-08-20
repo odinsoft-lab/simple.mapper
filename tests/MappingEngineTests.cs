@@ -259,7 +259,7 @@ namespace OdinMapper.Tests
         {
             // Arrange
             var engine = CreateConfiguredEngine();
-            var initialize = new MapAtRuntime.Initialize();
+            var initialize = new ModelTests.Initialize();
             var entities = new List<Entity1>();
             
             for (int i = 0; i < 1000; i++)

@@ -3,7 +3,7 @@ using Mapper.Tests.Models.DTO.Collections;
 
 namespace OdinMapper.Tests;
 
-public class MapAtRuntimeWithCollections : MapperSpecBase
+public class CollectionTests : MapperSpecBase
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {
@@ -33,7 +33,7 @@ public class MapAtRuntimeWithCollections : MapperSpecBase
         cfg.CreateMap<Entity24, EntityDTO24>().ReverseMap();
         cfg.CreateMap<Entity25, EntityDTO25>().ReverseMap();
         cfg.CreateMap<Entity26, EntityDTO26>().ReverseMap();
-        //cfg.ForAllPropertyMaps(p => !p.SourceType.IsValueType, (pm, o) => o.MapAtRuntime());
+        //cfg.ForAllPropertyMaps(p => !p.SourceType.IsValueType, (pm, o) => o.Models());
     });
 
     public class Initialize

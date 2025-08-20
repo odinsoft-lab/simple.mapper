@@ -233,7 +233,7 @@ namespace OdinMapper.Tests
         public void PerformanceComparison_OdinMapper_ShouldBeEfficient()
         {
             // Arrange
-            var initialize = new MapAtRuntime.Initialize();
+            var initialize = new ModelTests.Initialize();
             var entities = new List<Entity1>();
             
             for (int i = 0; i < 100; i++)
