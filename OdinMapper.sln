@@ -5,15 +5,15 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdinMapper", "src\OdinMapper\OdinMapper.csproj", "{573DC299-1F3A-04B2-C3B1-34965CCAD4D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdinMapper", "src\Odin.Mapper.csproj", "{573DC299-1F3A-04B2-C3B1-34965CCAD4D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{2D6C1C5E-1E0E-4E2C-9D46-9C507F0C7B6E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F6B2B4A3-7A39-4B50-AE5C-7D6E2E9E2D54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Sample", "samples\Mapper.Sample\Mapper.Sample.csproj", "{2EAF0C9D-6C10-4F7B-9C9E-8D5F0C3A4D2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Sample", "samples\Mapper.Sample.csproj", "{2EAF0C9D-6C10-4F7B-9C9E-8D5F0C3A4D2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Tests", "tests\Mapper.Tests\Mapper.Tests.csproj", "{8C5C8F24-0B3D-4B6A-A8A2-6F9C5C13E9A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Tests", "tests\Mapper.Tests.csproj", "{8C5C8F24-0B3D-4B6A-A8A2-6F9C5C13E9A7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C8D5274F-AC00-46C7-1F8D-E88E81087A52}"
 	ProjectSection(SolutionItems) = preProject
