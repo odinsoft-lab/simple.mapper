@@ -1,10 +1,10 @@
 @echo off
-REM SimpleMapper NuGet Package Publisher Batch File
+REM OdinMapper NuGet Package Publisher Batch File
 REM This is a wrapper for the PowerShell script
 
 echo.
 echo =========================================
-echo   SimpleMapper NuGet Package Publisher
+echo   OdinMapper NuGet Package Publisher
 echo =========================================
 echo.
 

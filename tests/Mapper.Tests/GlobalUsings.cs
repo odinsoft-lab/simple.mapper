@@ -3,11 +3,11 @@ global using System.Collections.Generic;
 global using System.Linq;
 
 // Project/library namespace
-global using SimpleMapper;
+global using OdinMapper;
 
 // Test framework
 global using Xunit;
 
-// Import test shim namespace (SimpleMapper-spec shims live here)
-global using SimpleMapper.Tests;
+// Import test shim namespace (OdinMapper-spec shims live here)
+global using OdinMapper.Tests;
 

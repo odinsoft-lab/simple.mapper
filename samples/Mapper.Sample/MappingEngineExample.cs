@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SimpleMapper.Examples
+namespace OdinMapper.Examples
 {
     /// <summary>
-    /// Example usage of SimpleMappingEngine
+    /// Example usage of MappingEngine
     /// </summary>
     public class MappingEngineExample
     {

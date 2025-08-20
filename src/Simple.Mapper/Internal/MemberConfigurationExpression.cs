@@ -1,7 +1,8 @@
-﻿using System;
+﻿using OdinMapper.Intefaces;
+using System;
 using System.Linq.Expressions;
 
-namespace SimpleMapper.Internal
+namespace OdinMapper.Internal
 {
     /// <summary>
     /// Member configuration expression implementation

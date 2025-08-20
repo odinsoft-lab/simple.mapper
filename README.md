@@ -1,4 +1,4 @@
-# SimpleMapper
+# OdinMapper
 
 High-performance mapping engine built around a CreateMap configuration API.
 
@@ -34,7 +34,7 @@ engine.CreateMap<Entity1, EntityDTO1>()
 
 ```csharp
 // 1) Create the engine and configure mappings (once at app startup)
-var engine = new SimpleMappingEngine();
+var engine = new MappingEngine();
 engine.CreateMap<UserEntity, UserDTO>();
 engine.CreateMap<AddressEntity, AddressDTO>();
 
@@ -53,9 +53,9 @@ var userDtos = engine.MapList<UserEntity, UserDTO>(userEntities);
 
 4) Predictable performance: consistent throughput after caching
 
-## Advantages Over the basic SimpleMapper
+## Advantages Over the basic OdinMapper
 
-| Aspect   | Basic SimpleMapper       | SimpleMappingEngine                 |
+| Aspect   | Basic OdinMapper       | MappingEngine                 |
 |----------|--------------------------|-------------------------------------|
 | Performance | Reflection on every call | Compile once, then use cache         |
 | Memory    | Low                       | Per-type cache (balanced)            |

@@ -1,7 +1,7 @@
 ﻿using OmmitedDatabaseModel3WithCollections;
 using OmmitedDTOModel3WithCollections;
 
-namespace SimpleMapper.Tests;
+namespace OdinMapper.Tests;
 
 public class MapAtRuntimeWithCollections : MapperSpecBase
 {

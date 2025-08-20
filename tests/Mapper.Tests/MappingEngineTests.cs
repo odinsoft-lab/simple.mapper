@@ -3,7 +3,7 @@ using OmmitedDatabaseModel3;
 using OmmitedDTOModel3;
 using System.Threading.Tasks;
 
-namespace SimpleMapper.Tests
+namespace OdinMapper.Tests
 {
     public class MappingEngineTests
     {
@@ -43,7 +43,7 @@ namespace SimpleMapper.Tests
         }
 
         [Fact]
-        public void Map_SimpleEntity_ShouldMapAllProperties()
+        public void Map_Entity_ShouldMapAllProperties()
         {
             // Arrange
             var engine = CreateConfiguredEngine();

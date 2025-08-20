@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleMapper.Internal
+namespace OdinMapper.Internal
 {
     /// <summary>
     /// Type pair for caching mappings

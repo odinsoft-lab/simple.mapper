@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using SimpleMapper.Internal;
+using OdinMapper.Intefaces;
+using OdinMapper.Internal;
 
-namespace SimpleMapper
+namespace OdinMapper
 {
     /// <summary>
-    /// Simple mapping engine with pre-compiled mappings for better performance
+    /// Mapping engine with pre-compiled mappings for better performance
     /// </summary>
     public class MappingEngine
     {
@@ -117,7 +118,7 @@ namespace SimpleMapper
                 var customMapping = config?.GetCustomMapping(sourceProperty.Name);
                 if (customMapping != null)
                 {
-                    // Handle custom mapping (not implemented in this simple version)
+                    // Handle custom mapping (not implemented in this version)
                     continue;
                 }
 
@@ -127,13 +128,13 @@ namespace SimpleMapper
                     var destinationValue = Expression.Property(destinationVar, destinationProperty);
 
                     // Handle simple types
-                    if (IsSimpleType(sourceProperty.PropertyType) && sourceProperty.PropertyType == destinationProperty.PropertyType)
+                    if (IsMappingType(sourceProperty.PropertyType) && sourceProperty.PropertyType == destinationProperty.PropertyType)
                     {
                         expressions.Add(Expression.Assign(destinationValue, sourceValue));
                     }
                     // Handle nullable to non-nullable or vice versa for simple types
-                    else if (IsSimpleType(GetUnderlyingType(sourceProperty.PropertyType)) && 
-                             IsSimpleType(GetUnderlyingType(destinationProperty.PropertyType)))
+                    else if (IsMappingType(GetUnderlyingType(sourceProperty.PropertyType)) && 
+                             IsMappingType(GetUnderlyingType(destinationProperty.PropertyType)))
                     {
                         var convertedValue = Expression.Convert(sourceValue, destinationProperty.PropertyType);
                         expressions.Add(Expression.Assign(destinationValue, convertedValue));
@@ -205,7 +206,7 @@ namespace SimpleMapper
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        private static bool IsSimpleType(Type type)
+        private static bool IsMappingType(Type type)
         {
             return type.IsPrimitive
                 || type.IsEnum
@@ -215,12 +216,12 @@ namespace SimpleMapper
                 || type == typeof(DateTimeOffset)
                 || type == typeof(TimeSpan)
                 || type == typeof(Guid)
-                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]));
+                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsMappingType(type.GetGenericArguments()[0]));
         }
 
         private static bool IsComplexType(Type type)
         {
-            return type.IsClass && !IsSimpleType(type) && !IsCollectionType(type);
+            return type.IsClass && !IsMappingType(type) && !IsCollectionType(type);
         }
 
         private static bool IsCollectionType(Type type)

@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SimpleMapper is a high-performance object mapping library for .NET that uses compiled expression trees for efficient runtime mapping. It provides two main mapping approaches:
-1. **SimpleMapper**: Direct reflection-based mapping without configuration
-2. **SimpleMappingEngine**: Pre-compiled mapping with configuration API for optimal performance
+OdinMapper is a high-performance object mapping library for .NET that uses compiled expression trees for efficient runtime mapping. It provides two main mapping approaches:
+1. **OdinMapper**: Direct reflection-based mapping without configuration
+2. **MappingEngine**: Pre-compiled mapping with configuration API for optimal performance
 
 ## Build Commands
 
@@ -19,7 +19,7 @@ SimpleMapper is a high-performance object mapping library for .NET that uses com
 dotnet build
 
 # Build specific project
-dotnet build src/Simple.Mapper/Simple.Mapper.csproj
+dotnet build src/OdinMapper/OdinMapper.csproj
 
 # Build in Release mode
 dotnet build -c Release
@@ -44,7 +44,7 @@ dotnet test tests/Mapper.Tests/Mapper.Tests.csproj
 dotnet test --collect:"XPlat Code Coverage"
 
 # Run a specific test
-dotnet test --filter "FullyQualifiedName~SimpleMappingEngineTests.Map_SimpleEntity_ShouldMapAllProperties"
+dotnet test --filter "FullyQualifiedName~MappingEngineTests.Map_Entity_ShouldMapAllProperties"
 ```
 
 ## Architecture & Design
@@ -53,26 +53,26 @@ dotnet test --filter "FullyQualifiedName~SimpleMappingEngineTests.Map_SimpleEnti
 
 The library is organized into distinct architectural layers:
 
-1. **Public API Layer** (`src/Simple.Mapper/`)
-   - `SimpleMapper.cs`: Static utility class for reflection-based mapping
-   - `SimpleMappingEngine.cs`: Main engine class with compiled expression support
+1. **Public API Layer** (`src/OdinMapper/`)
+   - `OdinMapper.cs`: Static utility class for reflection-based mapping
+   - `MappingEngine.cs`: Main engine class with compiled expression support
 
-2. **Interfaces** (`src/Simple.Mapper/Interfaces/`)
+2. **Interfaces** (`src/OdinMapper/Interfaces/`)
    - `IMappingExpression`: Base mapping configuration interface
    - `IMappingExpression<TSource, TDestination>`: Generic configuration API
    - `IMemberConfigurationExpression`: Member-level mapping configuration
 
-3. **Internal Implementation** (`src/Simple.Mapper/Internal/`)
+3. **Internal Implementation** (`src/OdinMapper/Internal/`)
    - `MappingExpression<TSource, TDestination>`: Implements configuration storage
    - `MemberConfigurationExpression`: Handles member-specific configuration
    - `TypePair`: Struct for type-pair caching keys
 
-4. **Extensions** (`src/Simple.Mapper/Extensions/`)
-   - `SimpleMapperExtensions`: Extension methods for fluent mapping
+4. **Extensions** (`src/OdinMapper/Extensions/`)
+   - `OdinMapperExtensions`: Extension methods for fluent mapping
 
 ### Mapping Engine Architecture
 
-The `SimpleMappingEngine` uses a sophisticated caching and compilation strategy:
+The `MappingEngine` uses a sophisticated caching and compilation strategy:
 
 1. **Type Pair Caching**: Uses `ConcurrentDictionary<TypePair, Delegate>` for thread-safe caching of compiled mappers
 2. **Expression Tree Compilation**: Builds expression trees on first use, then caches the compiled delegate
@@ -110,14 +110,14 @@ Tests are organized by mapping scenario:
 
 1. Define interface changes in `Interfaces/` directory
 2. Implement internal logic in `Internal/` directory
-3. Update `SimpleMappingEngine.CompileMapper` method to handle new configuration
+3. Update `MappingEngine.CompileMapper` method to handle new configuration
 4. Add corresponding tests in `tests/Mapper.Tests/`
 
 ### Modifying Expression Compilation
 
-The `CompileMapper<TSource, TDestination>` method in `SimpleMappingEngine.cs` is the heart of the system. When modifying:
+The `CompileMapper<TSource, TDestination>` method in `MappingEngine.cs` is the heart of the system. When modifying:
 1. Understand the expression tree building process (lines 85-199)
-2. Consider type compatibility checks (IsSimpleType, IsComplexType, IsCollectionType)
+2. Consider type compatibility checks (IsMappingType, IsComplexType, IsCollectionType)
 3. Maintain thread safety with proper locking
 4. Ensure null checks are properly expressed in the tree
 

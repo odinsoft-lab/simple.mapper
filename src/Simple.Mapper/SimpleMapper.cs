@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SimpleMapper
+namespace OdinMapper
 {
     /// <summary>
-    /// Simple mapping utility for Entity to DTO conversion without SimpleMapper configuration
+    /// Mapping utility for Entity to DTO conversion without OdinMapper configuration
     /// </summary>
     public static class Mapper
     {
@@ -83,8 +83,8 @@ namespace SimpleMapper
                             continue;
                         }
 
-                        // Handle simple value types and strings
-                        if (IsSimpleType(sourceProperty.PropertyType))
+                        // Handle value types and strings
+                        if (IsMappingType(sourceProperty.PropertyType))
                         {
                             if (sourceProperty.PropertyType == destinationProperty.PropertyType)
                             {
@@ -145,8 +145,8 @@ namespace SimpleMapper
                             continue;
                         }
 
-                        // Handle simple value types and strings
-                        if (IsSimpleType(sourceProperty.PropertyType))
+                        // Handle value types and strings
+                        if (IsMappingType(sourceProperty.PropertyType))
                         {
                             if (sourceProperty.PropertyType == destinationProperty.PropertyType)
                             {
@@ -220,7 +220,7 @@ namespace SimpleMapper
                     {
                         addMethod.Invoke(list, new object[] { null });
                     }
-                    else if (IsSimpleType(sourceElementType))
+                    else if (IsMappingType(sourceElementType))
                     {
                         addMethod.Invoke(list, new[] { item });
                     }
@@ -244,7 +244,7 @@ namespace SimpleMapper
                     {
                         sourceList.Add(null);
                     }
-                    else if (IsSimpleType(sourceElementType))
+                    else if (IsMappingType(sourceElementType))
                     {
                         sourceList.Add(item);
                     }
@@ -270,7 +270,7 @@ namespace SimpleMapper
         /// <summary>
         /// Check if type is a simple type (value type or string)
         /// </summary>
-        private static bool IsSimpleType(Type type)
+        private static bool IsMappingType(Type type)
         {
             return type.IsPrimitive 
                 || type.IsEnum 
@@ -280,7 +280,7 @@ namespace SimpleMapper
                 || type == typeof(DateTimeOffset)
                 || type == typeof(TimeSpan)
                 || type == typeof(Guid)
-                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]));
+                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsMappingType(type.GetGenericArguments()[0]));
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace SimpleMapper
         /// </summary>
         private static bool IsComplexType(Type type)
         {
-            return type.IsClass && !IsSimpleType(type) && !IsCollectionType(type);
+            return type.IsClass && !IsMappingType(type) && !IsCollectionType(type);
         }
 
         /// <summary>

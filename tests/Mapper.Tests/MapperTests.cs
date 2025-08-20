@@ -1,12 +1,12 @@
 ﻿using OmmitedDatabaseModel3;
 using OmmitedDTOModel3;
 
-namespace SimpleMapper.Tests
+namespace OdinMapper.Tests
 {
     public class MapperTests
     {
         [Fact]
-        public void Map_SimpleEntity_ShouldMapAllProperties()
+        public void Map_Entity_ShouldMapAllProperties()
         {
             // Arrange
             var entity = new Entity8
@@ -230,7 +230,7 @@ namespace SimpleMapper.Tests
         }
 
         [Fact]
-        public void PerformanceComparison_SimpleMapper_ShouldBeEfficient()
+        public void PerformanceComparison_OdinMapper_ShouldBeEfficient()
         {
             // Arrange
             var initialize = new MapAtRuntime.Initialize();

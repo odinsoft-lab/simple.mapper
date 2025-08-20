@@ -1,4 +1,4 @@
-﻿using SimpleMapper.Examples;
+﻿using OdinMapper.Examples;
 
 MappingEngineExample.BasicUsageExample();
 
