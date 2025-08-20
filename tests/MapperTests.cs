@@ -1,7 +1,7 @@
 ﻿using Mapper.Tests.Models;
 using Mapper.Tests.Models.DTO;
 
-namespace OdinMapper.Tests
+namespace Simple.AutoMapper.Tests
 {
     public class MapperTests
     {
@@ -230,7 +230,7 @@ namespace OdinMapper.Tests
         }
 
         [Fact]
-        public void PerformanceComparison_OdinMapper_ShouldBeEfficient()
+        public void PerformanceComparison_AutoMapper_ShouldBeEfficient()
         {
             // Arrange
             var initialize = new ModelTests.Initialize();

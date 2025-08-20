@@ -1,6 +1,6 @@
-namespace OdinMapper.Tests
+namespace Simple.AutoMapper.Tests
 {
-    // Minimal shims to satisfy tests without referencing OdinMapper package
+    // Minimal shims to satisfy tests without referencing Simple.AutoMapper package
     public abstract class MapperSpecBase
     {
         protected abstract MapperConfiguration CreateConfiguration();

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Odin.Mapper.csproj" />
+    <ProjectReference Include="..\src\Simple.AutoMapper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

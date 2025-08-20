@@ -1,10 +1,10 @@
 @echo off
-REM OdinMapper NuGet Package Unlist Batch File
+REM Simple.AutoMapper NuGet Package Unlist Batch File
 REM This is a wrapper for the PowerShell unlist script
 
 echo.
 echo =========================================
-echo   OdinMapper NuGet Package Unlist Tool
+echo   Simple.AutoMapper NuGet Package Unlist Tool
 echo =========================================
 echo.
 

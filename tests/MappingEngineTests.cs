@@ -3,7 +3,7 @@ using Mapper.Tests.Models;
 using Mapper.Tests.Models.DTO;
 using System.Threading.Tasks;
 
-namespace OdinMapper.Tests
+namespace Simple.AutoMapper.Tests
 {
     public class MappingEngineTests
     {

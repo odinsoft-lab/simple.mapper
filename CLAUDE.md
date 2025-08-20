@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OdinMapper is a high-performance object mapping library for .NET that uses compiled expression trees for efficient runtime mapping. It provides two main mapping approaches:
-1. **OdinMapper**: Direct reflection-based mapping without configuration
+Simple.AutoMapper is a high-performance object mapping library for .NET that uses compiled expression trees for efficient runtime mapping. It provides two main mapping approaches:
+1. **Simple.AutoMapper**: Direct reflection-based mapping without configuration
 2. **MappingEngine**: Pre-compiled mapping with configuration API for optimal performance
 
 ## Build Commands
@@ -19,7 +19,7 @@ OdinMapper is a high-performance object mapping library for .NET that uses compi
 dotnet build
 
 # Build specific project
-dotnet build src/OdinMapper/OdinMapper.csproj
+dotnet build src/Simple.AutoMapper/Simple.AutoMapper.csproj
 
 # Build in Release mode
 dotnet build -c Release
@@ -53,22 +53,22 @@ dotnet test --filter "FullyQualifiedName~MappingEngineTests.Map_Entity_ShouldMap
 
 The library is organized into distinct architectural layers:
 
-1. **Public API Layer** (`src/OdinMapper/`)
-   - `OdinMapper.cs`: Static utility class for reflection-based mapping
+1. **Public API Layer** (`src/Simple.AutoMapper/`)
+   - `Simple.AutoMapper.cs`: Static utility class for reflection-based mapping
    - `MappingEngine.cs`: Main engine class with compiled expression support
 
-2. **Interfaces** (`src/OdinMapper/Interfaces/`)
+2. **Interfaces** (`src/Simple.AutoMapper/Interfaces/`)
    - `IMappingExpression`: Base mapping configuration interface
    - `IMappingExpression<TSource, TDestination>`: Generic configuration API
    - `IMemberConfigurationExpression`: Member-level mapping configuration
 
-3. **Internal Implementation** (`src/OdinMapper/Internal/`)
+3. **Internal Implementation** (`src/Simple.AutoMapper/Internal/`)
    - `MappingExpression<TSource, TDestination>`: Implements configuration storage
    - `MemberConfigurationExpression`: Handles member-specific configuration
    - `TypePair`: Struct for type-pair caching keys
 
-4. **Extensions** (`src/OdinMapper/Extensions/`)
-   - `OdinMapperExtensions`: Extension methods for fluent mapping
+4. **Extensions** (`src/Simple.AutoMapper/Extensions/`)
+   - `AutoMapperExtensions`: Extension methods for fluent mapping
 
 ### Mapping Engine Architecture
 

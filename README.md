@@ -1,4 +1,4 @@
-# OdinMapper
+# Simple.AutoMapper
 
 High-performance mapping engine built around a CreateMap configuration API.
 
@@ -53,9 +53,9 @@ var userDtos = engine.MapList<UserEntity, UserDTO>(userEntities);
 
 4) Predictable performance: consistent throughput after caching
 
-## Advantages Over the basic OdinMapper
+## Advantages Over the basic Simple.AutoMapper
 
-| Aspect   | Basic OdinMapper       | MappingEngine                 |
+| Aspect   | Basic Simple.AutoMapper       | MappingEngine                 |
 |----------|--------------------------|-------------------------------------|
 | Performance | Reflection on every call | Compile once, then use cache         |
 | Memory    | Low                       | Per-type cache (balanced)            |

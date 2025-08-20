@@ -52,10 +52,10 @@ dotnet clean
 dotnet restore
 dotnet build -c Release
 dotnet test tests/Mapper.Tests/Mapper.Tests.csproj -c Release
-dotnet pack src/OdinMapper/OdinMapper.csproj -c Release 
+dotnet pack src/Simple.AutoMapper/Simple.AutoMapper.csproj -c Release 
 
 # Upload to NuGet
-dotnet nuget push ./nupkg/OdinMapper.1.0.3.nupkg \
+dotnet nuget push ./nupkg/Simple.AutoMapper.1.0.3.nupkg \
   --source https://api.nuget.org/v3/index.json \
   --api-key YOUR_API_KEY
 ```
@@ -67,7 +67,7 @@ dotnet nuget push ./nupkg/OdinMapper.1.0.3.nupkg \
 **For CI/CD pipelines**:
 ```bash
 # With skip-duplicate flag to avoid errors on re-runs
-dotnet nuget push ./nupkg/OdinMapper.{VERSION}.nupkg \
+dotnet nuget push ./nupkg/Simple.AutoMapper.{VERSION}.nupkg \
   --source https://api.nuget.org/v3/index.json \
   --api-key $NUGET_API_KEY \
   --skip-duplicate

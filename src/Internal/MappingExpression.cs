@@ -1,9 +1,9 @@
-﻿using OdinMapper.Intefaces;
+﻿using Simple.AutoMapper.Intefaces;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace OdinMapper.Internal
+namespace Simple.AutoMapper.Internal
 {
     /// <summary>
     /// Mapping expression implementation

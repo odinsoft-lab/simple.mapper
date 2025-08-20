@@ -1,8 +1,8 @@
 ﻿using Mapper.Tests.Models;
 using Mapper.Tests.Models.DTO;
-using OdinMapper;
+using Simple.AutoMapper;
 
-namespace OdinMapper.Tests;
+namespace Simple.AutoMapper.Tests;
 
 public class ModelTests : MapperSpecBase
 {

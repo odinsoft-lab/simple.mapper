@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OdinMapper.Intefaces
+namespace Simple.AutoMapper.Intefaces
 {
     /// <summary>
     /// Mapping expression interface

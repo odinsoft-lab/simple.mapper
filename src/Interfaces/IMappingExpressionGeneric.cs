@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace OdinMapper.Intefaces
+namespace Simple.AutoMapper.Intefaces
 {
     /// <summary>
     /// Generic mapping expression interface

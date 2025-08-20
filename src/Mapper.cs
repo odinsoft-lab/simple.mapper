@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace OdinMapper
+namespace Simple.AutoMapper
 {
     /// <summary>
-    /// Mapping utility for Entity to DTO conversion without OdinMapper configuration
+    /// Mapping utility for Entity to DTO conversion without Simple.AutoMapper configuration
     /// </summary>
     public static class Mapper
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OdinMapper.Examples
+namespace Simple.AutoMapper.Examples
 {
     /// <summary>
     /// Example usage of MappingEngine

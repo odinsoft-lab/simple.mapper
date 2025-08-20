@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace OdinMapper.Extensions
+namespace Simple.AutoMapper.Extensions
 {
     /// <summary>
-    /// Extension methods for OdinMapper
+    /// Extension methods for Simple.AutoMapper
     /// </summary>
     public static class MapperExtensions
     {

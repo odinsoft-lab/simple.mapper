@@ -1,4 +1,4 @@
-# OdinMapper NuGet Package Unlist Script
+# Simple.AutoMapper NuGet Package Unlist Script
 # This script unlists (hides) a specific version of the package from NuGet.org
 
 param(
@@ -13,7 +13,7 @@ param(
 )
 
 # Configuration
-$PackageId = "OdinMapper"
+$PackageId = "Simple.AutoMapper"
 $NuGetSource = "https://api.nuget.org/v3/index.json"
 
 # Color output functions
@@ -25,7 +25,7 @@ function Write-Error { param($Message) Write-Host $Message -ForegroundColor Red 
 # Banner
 Write-Host ""
 Write-Warning "========================================="
-Write-Warning "  OdinMapper NuGet Package Unlist Tool"
+Write-Warning "  Simple.AutoMapper NuGet Package Unlist Tool"
 Write-Warning "========================================="
 Write-Host ""
 

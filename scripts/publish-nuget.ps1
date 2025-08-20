@@ -1,5 +1,5 @@
-# OdinMapper NuGet Package Publisher
-# This script builds and publishes the OdinMapper package to NuGet.org
+# Simple.AutoMapper NuGet Package Publisher
+# This script builds and publishes the Simple.AutoMapper package to NuGet.org
 
 param(
     [Parameter(Mandatory=$false)]
@@ -18,7 +18,7 @@ param(
 # Configuration
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
-$ProjectPath = Join-Path $RootDir "src\OdinMapper\OdinMapper.csproj"
+$ProjectPath = Join-Path $RootDir "src\Simple.AutoMapper\Simple.AutoMapper.csproj"
 $Configuration = "Release"
 $OutputDirectory = Join-Path $RootDir "src\bin\Release"
 $NuGetSource = "https://api.nuget.org/v3/index.json"
@@ -32,7 +32,7 @@ function Write-Error { param($Message) Write-Host $Message -ForegroundColor Red 
 # Banner
 Write-Host ""
 Write-Info "========================================="
-Write-Info "  OdinMapper NuGet Package Publisher"
+Write-Info "  Simple.AutoMapper NuGet Package Publisher"
 Write-Info "========================================="
 Write-Host ""
 
@@ -92,7 +92,7 @@ if (-not $SkipBuild) {
 if (-not $SkipTests) {
     Write-Host ""
     Write-Info "Running tests..."
-    $TestPath = Join-Path $RootDir "tests\OdinMapper.Tests.csproj"
+    $TestPath = Join-Path $RootDir "tests\Simple.AutoMapper.Tests.csproj"
     
     # Build test project first
     $testBuildCommand = "dotnet build `"$TestPath`" --configuration $Configuration"
@@ -199,7 +199,7 @@ if ($DryRun) {
     Write-Success "  Package published successfully!"
     Write-Success "========================================="
     Write-Host ""
-    Write-Info "Package URL: https://www.nuget.org/packages/OdinMapper/"
+    Write-Info "Package URL: https://www.nuget.org/packages/Simple.AutoMapper/"
     Write-Info "It may take a few minutes for the package to appear on NuGet.org"
 }
 

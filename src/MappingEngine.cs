@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using OdinMapper.Intefaces;
-using OdinMapper.Internal;
+using Simple.AutoMapper.Intefaces;
+using Simple.AutoMapper.Internal;
 
-namespace OdinMapper
+namespace Simple.AutoMapper
 {
     /// <summary>
     /// Mapping engine with pre-compiled mappings for better performance

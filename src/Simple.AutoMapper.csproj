@@ -5,35 +5,35 @@
 		<LangVersion>latest</LangVersion>
 
 		<!-- Assembly Information -->
-		<AssemblyName>OdinMapper</AssemblyName>
-		<RootNamespace>OdinMapper</RootNamespace>
+		<AssemblyName>Simple.AutoMapper</AssemblyName>
+		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.3</Version>
-		<AssemblyVersion>1.0.3.0</AssemblyVersion>
-		<FileVersion>1.0.3.0</FileVersion>
+		<Version>1.0.4</Version>
+		<AssemblyVersion>1.0.4.0</AssemblyVersion>
+		<FileVersion>1.0.4.0</FileVersion>
 
 		<!-- Package Information -->
 		<IsPackable>true</IsPackable>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<PackageId>OdinMapper</PackageId>
+		<PackageId>Simple.AutoMapper</PackageId>
 		<Authors>SEONGAHN LEE</Authors>
-		<Product>OdinMapper</Product>
+		<Product>Simple.AutoMapper</Product>
 		<Company>ODINSOFT</Company>
-		<Title>OdinMapper — High-performance object mapping for .NET</Title>
-		<Description>OdinMapper – OdinMapper is a tool that automatically “copies data from one shape to another” inside your app. Instead of manually moving the same information between database objects and view models, you define simple mapping rules once and reuse them everywhere.</Description>
+		<Title>Simple.AutoMapper — High-performance object simple mapping for .NET</Title>
+		<Description>Simple.AutoMapper – Simple.AutoMapper is a tool that automatically “copies data from one shape to another” inside your app. Instead of manually moving the same information between database objects and view models, you define simple mapping rules once and reuse them everywhere.</Description>
 		<Copyright>Copyright OdinSoft Co., Ltd. 2015~2025</Copyright>
 
 		<!-- Package Settings -->
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/lisa3907/OdinMapper</PackageProjectUrl>
-		<PackageIcon>OdinMapper.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/lisa3907/Simple.AutoMapper</PackageProjectUrl>
+		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.3 - High-performance object mapping for .NET</PackageReleaseNotes>
+		<PackageReleaseNotes>v1.0.4 - High-performance object simple mapping for .NET</PackageReleaseNotes>
 
 		<!-- Repository Information -->
-		<RepositoryUrl>https://github.com/lisa3907/OdinMapper</RepositoryUrl>
+		<RepositoryUrl>https://github.com/lisa3907/Simple.AutoMapper</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 
@@ -49,7 +49,7 @@
 		<Deterministic>true</Deterministic>
 		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-		<ApplicationIcon>OdinMapper.ico</ApplicationIcon>
+		<ApplicationIcon>Simple.AutoMapper.ico</ApplicationIcon>
 
 		<!-- Debugging and Symbols -->
 		<DebugType>embedded</DebugType>
@@ -62,9 +62,9 @@
 	<ItemGroup>
 		<None Include="..\README.md" Pack="true" PackagePath="\" />
 		<None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
-		<None Include="..\docs\logo-files\OdinMapper.png" Pack="true" PackagePath="\" />
+		<None Include="..\docs\logo-files\Simple.AutoMapper.png" Pack="true" PackagePath="\" />
 		<Content Include="..\LICENSE.md" Link="LICENSE.md" />
-		<Content Include="OdinMapper.ico" />
+		<Content Include="Simple.AutoMapper.ico" />
 	</ItemGroup>
 
 </Project>

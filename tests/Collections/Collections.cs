@@ -1,7 +1,7 @@
 ﻿using Mapper.Tests.Models.Collections;
 using Mapper.Tests.Models.DTO.Collections;
 
-namespace OdinMapper.Tests;
+namespace Simple.AutoMapper.Tests;
 
 public class CollectionTests : MapperSpecBase
 {
