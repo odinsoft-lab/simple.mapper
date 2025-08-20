@@ -3,9 +3,9 @@ using OmmitedDatabaseModel3;
 using OmmitedDTOModel3;
 using System.Threading.Tasks;
 
-namespace Simple.Tests
+namespace SimpleMapper.Tests
 {
-    public class SimpleMappingEngineTests
+    public class MappingEngineTests
     {
         private MappingEngine CreateConfiguredEngine()
         {

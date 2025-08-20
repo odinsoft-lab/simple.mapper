@@ -25,6 +25,20 @@ namespace SimpleMapper
         }
 
         /// <summary>
+        /// Map a single entity to DTO (infers source type from parameter)
+        /// </summary>
+        public static TDestination Map<TDestination>(object source)
+            where TDestination : new()
+        {
+            if (source == null)
+                return default(TDestination);
+
+            var destination = new TDestination();
+            MapPropertiesNonGeneric(source, destination);
+            return destination;
+        }
+
+        /// <summary>
         /// Map a collection of entities to DTOs
         /// </summary>
         public static List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> sourceList)
@@ -34,6 +48,68 @@ namespace SimpleMapper
                 return null;
 
             return sourceList.Select(source => Map<TSource, TDestination>(source)).ToList();
+        }
+
+        /// <summary>
+        /// Map properties from source to destination (non-generic version)
+        /// </summary>
+        private static void MapPropertiesNonGeneric(object source, object destination)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var sourceType = source.GetType();
+            var destinationType = destination.GetType();
+
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var destinationProperties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                if (!sourceProperty.CanRead)
+                    continue;
+
+                if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+                {
+                    try
+                    {
+                        var sourceValue = sourceProperty.GetValue(source);
+                        
+                        if (sourceValue == null)
+                        {
+                            destinationProperty.SetValue(destination, null);
+                            continue;
+                        }
+
+                        // Handle simple value types and strings
+                        if (IsSimpleType(sourceProperty.PropertyType))
+                        {
+                            if (sourceProperty.PropertyType == destinationProperty.PropertyType)
+                            {
+                                destinationProperty.SetValue(destination, sourceValue);
+                            }
+                        }
+                        // Handle nested complex types (Entity to DTO mapping)
+                        else if (IsComplexType(sourceProperty.PropertyType) && IsComplexType(destinationProperty.PropertyType))
+                        {
+                            var mappedValue = MapComplexType(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedValue);
+                        }
+                        // Handle collections
+                        else if (IsCollectionType(sourceProperty.PropertyType) && IsCollectionType(destinationProperty.PropertyType))
+                        {
+                            var mappedCollection = MapCollection(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedCollection);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip properties that cannot be mapped
+                    }
+                }
+            }
         }
 
         /// <summary>

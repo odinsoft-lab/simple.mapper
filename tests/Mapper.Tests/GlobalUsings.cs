@@ -9,5 +9,5 @@ global using SimpleMapper;
 global using Xunit;
 
 // Import test shim namespace (SimpleMapper-spec shims live here)
-global using SimpleMapper.UnitTests;
+global using SimpleMapper.Tests;
 

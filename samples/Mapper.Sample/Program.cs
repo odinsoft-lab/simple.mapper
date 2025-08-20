@@ -1,3 +1,9 @@
 ﻿using SimpleMapper.Examples;
 
-SimpleMappingEngineExample.BasicUsageExample();
+MappingEngineExample.BasicUsageExample();
+
+MappingEngineExample.AdvancedConfigurationExample();
+
+MappingEngineExample.CollectionMappingExample();
+
+MappingEngineExample.PerformanceBenefitsExample();

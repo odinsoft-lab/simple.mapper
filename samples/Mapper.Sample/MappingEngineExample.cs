@@ -6,7 +6,7 @@ namespace SimpleMapper.Examples
     /// <summary>
     /// Example usage of SimpleMappingEngine
     /// </summary>
-    public class SimpleMappingEngineExample
+    public class MappingEngineExample
     {
         // Example Entity classes
         public class UserEntity

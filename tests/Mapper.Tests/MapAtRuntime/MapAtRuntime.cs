@@ -2,9 +2,9 @@
 using OmmitedDTOModel3;
 using SimpleMapper;
 
-namespace Simple.Tests;
+namespace SimpleMapper.Tests;
 
-public class MapAtRuntime : SimpleMapperSpecBase
+public class MapAtRuntime : MapperSpecBase
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {

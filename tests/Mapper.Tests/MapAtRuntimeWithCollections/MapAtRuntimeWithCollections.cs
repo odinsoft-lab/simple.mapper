@@ -1,9 +1,9 @@
 ﻿using OmmitedDatabaseModel3WithCollections;
 using OmmitedDTOModel3WithCollections;
 
-namespace Simple.Tests;
+namespace SimpleMapper.Tests;
 
-public class MapAtRuntimeWithCollections : SimpleMapperSpecBase
+public class MapAtRuntimeWithCollections : MapperSpecBase
 {
     protected override MapperConfiguration CreateConfiguration() => new(cfg =>
     {

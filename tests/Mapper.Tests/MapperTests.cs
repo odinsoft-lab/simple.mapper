@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using Xunit;
-using OmmitedDatabaseModel3;
+﻿using OmmitedDatabaseModel3;
 using OmmitedDTOModel3;
 
-namespace Simple.Tests
+namespace SimpleMapper.Tests
 {
-    public class SimpleMapperTests
+    public class MapperTests
     {
         [Fact]
         public void Map_SimpleEntity_ShouldMapAllProperties()
