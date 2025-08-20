@@ -1,8 +1,77 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+
+		<!-- Assembly Information -->
+		<AssemblyName>SimpleMapper</AssemblyName>
+		<RootNamespace>SimpleMapper</RootNamespace>
+
+		<!-- Versioning -->
+		<Version>1.0.3</Version>
+		<AssemblyVersion>1.0.3.0</AssemblyVersion>
+		<FileVersion>1.0.3.0</FileVersion>
+
+		<!-- Package Information -->
+		<!-- Disable auto-pack on build to avoid NU5017 during normal builds; use `dotnet pack` explicitly when needed. -->
+		<IsPackable>true</IsPackable>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageId>SimpleMapper</PackageId>
+		<Authors>SEONGAHN LEE</Authors>
+		<Product>SimpleMapper</Product>
+		<Company>ODINSOFT</Company>
+		<Title>High‑performance, precompiled object mapping for .NET</Title>
+		<Description>SimpleMapper – SimpleMapper is a tool that automatically “copies data from one shape to another” inside your app. Instead of manually moving the same information between database objects and view models, you define simple mapping rules once and reuse them everywhere.</Description>
+		<Copyright>Copyright OdinSoftware Co., Ltd. 2015~2025</Copyright>
+
+		<!-- Package Settings -->
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/lisa3907/SimpleMapper</PackageProjectUrl>
+		<PackageIcon>simple.mapper.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
+		<PackageReleaseNotes>v1.0.3 - </PackageReleaseNotes>
+
+		<!-- Repository Information -->
+		<RepositoryUrl>https://github.com/lisa3907/SimpleMapper</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<!-- Code Quality Settings - Simplified -->
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+		<!-- Suppress most warnings except critical ones -->
+		<NoWarn>$(NoWarn);CS1998;CS0618</NoWarn>
+
+		<!-- Build Settings -->
+		<Deterministic>true</Deterministic>
+		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+
+		<!-- Debugging and Symbols -->
+		<DebugType>embedded</DebugType>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<!-- Package Files -->
+	<ItemGroup>
+		<None Include="..\..\docs\logo-files\simple.mapper.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
