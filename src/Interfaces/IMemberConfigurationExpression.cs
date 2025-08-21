@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Simple.AutoMapper.Intefaces
+namespace Simple.AutoMapper.Interfaces
 {
     /// <summary>
     /// Member configuration expression interface

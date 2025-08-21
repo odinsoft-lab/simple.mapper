@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Simple.AutoMapper.Intefaces
+namespace Simple.AutoMapper.Interfaces
 {
     /// <summary>
     /// Mapping expression interface

@@ -61,15 +61,12 @@ namespace Simple.AutoMapper.Examples
 
         public static void BasicUsageExample()
         {
-            // Step 1: Create and configure the mapping engine
-            var engine = new MappingEngine();
-            
-            // Step 2: Create mappings (this is done once, typically at application startup)
-            engine.CreateMap<UserEntity, UserDTO>();
-            engine.CreateMap<AddressEntity, AddressDTO>();
-            engine.CreateMap<OrderEntity, OrderDTO>();
+            // Configure mappings (via public facade)
+            Mapper.CreateMap<UserEntity, UserDTO>();
+            Mapper.CreateMap<AddressEntity, AddressDTO>();
+            Mapper.CreateMap<OrderEntity, OrderDTO>();
 
-            // Step 3: Create sample data
+            // Create sample data
             var userEntity = new UserEntity
             {
                 Id = 1,
@@ -89,10 +86,9 @@ namespace Simple.AutoMapper.Examples
                 }
             };
 
-            // Step 4: Map entity to DTO (public API)
+            // Map entity to DTO (public API)
             var userDto = Mapper.Map<UserEntity, UserDTO>(userEntity);
 
-            // The userDto now contains all mapped data including nested objects and collections
             Console.WriteLine($"Mapped User: {userDto.FirstName} {userDto.LastName}");
             Console.WriteLine($"Address: {userDto.Address.Street}, {userDto.Address.City}");
             Console.WriteLine($"Orders Count: {userDto.Orders.Count}");
@@ -100,15 +96,13 @@ namespace Simple.AutoMapper.Examples
 
         public static void AdvancedConfigurationExample()
         {
-            var engine = new MappingEngine();
-
-            // Configure mapping with ignored properties
-            engine.CreateMap<UserEntity, UserDTO>()
+            // Configure mapping with ignored properties via facade
+            Mapper.CreateMap<UserEntity, UserDTO>()
                 .Ignore(dest => dest.BirthDate); // Ignore BirthDate property
 
             // Configure nested mappings
-            engine.CreateMap<AddressEntity, AddressDTO>();
-            engine.CreateMap<OrderEntity, OrderDTO>();
+            Mapper.CreateMap<AddressEntity, AddressDTO>();
+            Mapper.CreateMap<OrderEntity, OrderDTO>();
 
             var userEntity = new UserEntity
             {
@@ -132,12 +126,10 @@ namespace Simple.AutoMapper.Examples
 
         public static void CollectionMappingExample()
         {
-            var engine = new MappingEngine();
-            
             // Configure mappings
-            engine.CreateMap<UserEntity, UserDTO>();
-            engine.CreateMap<AddressEntity, AddressDTO>();
-            engine.CreateMap<OrderEntity, OrderDTO>();
+            Mapper.CreateMap<UserEntity, UserDTO>();
+            Mapper.CreateMap<AddressEntity, AddressDTO>();
+            Mapper.CreateMap<OrderEntity, OrderDTO>();
 
             // Create a list of entities
             var userEntities = new List<UserEntity>
@@ -177,12 +169,10 @@ namespace Simple.AutoMapper.Examples
 
         public static void PerformanceBenefitsExample()
         {
-            var engine = new MappingEngine();
-            
             // Configure mappings once
-            engine.CreateMap<UserEntity, UserDTO>();
-            engine.CreateMap<AddressEntity, AddressDTO>();
-            engine.CreateMap<OrderEntity, OrderDTO>();
+            Mapper.CreateMap<UserEntity, UserDTO>();
+            Mapper.CreateMap<AddressEntity, AddressDTO>();
+            Mapper.CreateMap<OrderEntity, OrderDTO>();
 
             // Create many entities
             var entities = new List<UserEntity>();

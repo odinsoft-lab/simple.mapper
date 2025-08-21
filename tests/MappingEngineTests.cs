@@ -10,7 +10,8 @@ namespace Simple.AutoMapper.Tests
     {
         private MappingEngine CreateConfiguredEngine()
         {
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             
             // Configure all mappings
             engine.CreateMap<Entity1, EntityDTO1>();
@@ -241,7 +242,8 @@ namespace Simple.AutoMapper.Tests
         public void Map_WithIgnoredProperty_ShouldNotMapIgnoredProperty()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             engine.CreateMap<Entity17, EntityDTO17>()
                 .Ignore(d => d.Id); // Ignore Id property
 
@@ -314,7 +316,8 @@ namespace Simple.AutoMapper.Tests
         public void ReverseMap_SimpleEntity_ShouldCreateBidirectionalMapping()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             engine.CreateMap<Entity8, EntityDTO8>()
                 .ReverseMap();
 
@@ -339,7 +342,8 @@ namespace Simple.AutoMapper.Tests
         public void ReverseMap_ComplexEntity_ShouldMapNestedProperties()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             
             // Configure all necessary mappings with ReverseMap
             engine.CreateMap<Entity22, EntityDTO22>().ReverseMap();
@@ -381,7 +385,8 @@ namespace Simple.AutoMapper.Tests
         public void ReverseMap_WithIgnoredProperties_ShouldNotReverseIgnores()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             var entityId = Guid.NewGuid();
             var manualId = Guid.NewGuid();
             

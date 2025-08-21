@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using Simple.AutoMapper.Core;
 using Simple.AutoMapper.Tests.Models;
 using Simple.AutoMapper.Tests.Models.DTO;
@@ -12,10 +10,11 @@ namespace Simple.AutoMapper.Tests
         public void Map_WithCircularReference_ShouldNotCauseStackOverflow()
         {
             // Arrange
-            var engine = new MappingEngine();
-            engine.CreateMap<Entity10, EntityDTO10>();
-            engine.CreateMap<Entity11, EntityDTO11>();
-            engine.CreateMap<Entity8, EntityDTO8>();
+
+            var engine = Mapper.Reset();
+            engine.CreateMap<Entity10, EntityDTO10>().ReverseMap();
+            engine.CreateMap<Entity11, EntityDTO11>().ReverseMap();
+            engine.CreateMap<Entity8, EntityDTO8>().ReverseMap();
             
             var entity10Id = Guid.NewGuid();
             var entity11Id = Guid.NewGuid();
@@ -54,7 +53,8 @@ namespace Simple.AutoMapper.Tests
         public void Map_WithPreserveReferences_ShouldHandleCircularReference()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             engine.CreateMap<Entity10, EntityDTO10>()
                 .PreserveReferences();
             engine.CreateMap<Entity11, EntityDTO11>()
@@ -98,7 +98,8 @@ namespace Simple.AutoMapper.Tests
         public void Map_WithMaxDepth_ShouldLimitRecursion()
         {
             // Arrange
-            var engine = new MappingEngine();
+
+            var engine = Mapper.Reset();
             engine.CreateMap<Entity10, EntityDTO10>()
                 .MaxDepth(2); // Limit recursion depth
             engine.CreateMap<Entity11, EntityDTO11>();

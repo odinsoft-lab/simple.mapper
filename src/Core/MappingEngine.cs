@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Simple.AutoMapper.Intefaces;
+using Simple.AutoMapper.Interfaces;
 using Simple.AutoMapper.Internal;
 
 namespace Simple.AutoMapper.Core
@@ -13,8 +13,12 @@ namespace Simple.AutoMapper.Core
     /// High-performance mapping engine with both and instance-based APIs
     /// Provides reflection-based and compiled mapping capabilities
     /// </summary>
-    public class MappingEngine
+    internal sealed class MappingEngine
     {
+        // Singleton instance
+        private static readonly Lazy<MappingEngine> _instance = new Lazy<MappingEngine>(() => new MappingEngine());
+        internal static MappingEngine Instance => _instance.Value;
+
         // Configuration and compilation caches
         private readonly ConcurrentDictionary<TypePair, IMappingExpression> _mappingExpressions = new();
         private readonly ConcurrentDictionary<TypePair, Delegate> _compiledMappings = new();
@@ -22,6 +26,16 @@ namespace Simple.AutoMapper.Core
         
         // Default max depth for recursive mapping
         private const int DefaultMaxDepth = 10;
+
+        // Prevent external instantiation; enforce singleton
+        private MappingEngine() { }
+
+        // Test/support: reset all mappings and compiled delegates
+        internal void Reset()
+        {
+            _mappingExpressions.Clear();
+            _compiledMappings.Clear();
+        }
 
         #region API Methods
 
@@ -79,7 +93,7 @@ namespace Simple.AutoMapper.Core
         /// <summary>
         /// Map a single object using instance API with mapping context
         /// </summary>
-        internal TDestination MapInstanceWithContext<TSource, TDestination>(TSource source, MappingContext context)
+        private TDestination MapInstanceWithContext<TSource, TDestination>(TSource source, MappingContext context)
             where TDestination : new()
         {
             if (source == null)

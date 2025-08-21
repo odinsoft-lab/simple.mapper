@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Simple.AutoMapper.Interfaces;
 using System.Collections.Generic;
 
 namespace Simple.AutoMapper.Core
@@ -8,13 +8,19 @@ namespace Simple.AutoMapper.Core
     /// </summary>
     public static class Mapper
     {
-        // Singleton instance for static API
-        private static readonly Lazy<MappingEngine> _defaultInstance = new Lazy<MappingEngine>(() => new MappingEngine());
+        /// <summary>
+        /// Get the default singleton instance (internal to keep MappingEngine hidden from consumers)
+        /// </summary>
+        internal static MappingEngine Default => MappingEngine.Instance;
 
         /// <summary>
-        /// Get the default singleton instance
+        /// Create a mapping configuration between source and destination types
         /// </summary>
-        public static MappingEngine Default => _defaultInstance.Value;
+        public static IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
+            where TDestination : new()
+        {
+            return Default.CreateMap<TSource, TDestination>();
+        }
 
         /// <summary>
         /// Map a single entity to DTO
@@ -49,6 +55,16 @@ namespace Simple.AutoMapper.Core
         public static void Map<TSource, TDestination>(TSource source, TDestination destination)
         {
             Default.MapPropertiesGeneric(source, destination);
+        }
+
+        /// <summary>
+        /// For tests only: reset the underlying singleton state
+        /// </summary>
+        internal static MappingEngine Reset()
+        {
+            Default.Reset();
+
+            return Default;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Simple.AutoMapper.Intefaces;
+﻿using Simple.AutoMapper.Interfaces;
 using System;
 using System.Linq.Expressions;
 
