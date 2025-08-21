@@ -20,7 +20,7 @@ Simple.AutoMapper is a high-performance object mapping library for .NET that pro
 dotnet build
 
 # Build specific project
-dotnet build src/Simple.AutoMapper/Simple.AutoMapper.csproj
+dotnet build src/Simple.AutoMapper.csproj
 
 # Build in Release mode
 dotnet build -c Release

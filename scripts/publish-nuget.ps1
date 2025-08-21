@@ -18,7 +18,7 @@ param(
 # Configuration
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
-$ProjectPath = Join-Path $RootDir "src\Simple.AutoMapper\Simple.AutoMapper.csproj"
+$ProjectPath = Join-Path $RootDir "src\Simple.AutoMapper.csproj"
 $Configuration = "Release"
 $OutputDirectory = Join-Path $RootDir "src\bin\Release"
 $NuGetSource = "https://api.nuget.org/v3/index.json"
@@ -92,7 +92,7 @@ if (-not $SkipBuild) {
 if (-not $SkipTests) {
     Write-Host ""
     Write-Info "Running tests..."
-    $TestPath = Join-Path $RootDir "tests\Simple.AutoMapper.Tests.csproj"
+    $TestPath = Join-Path $RootDir "tests\Mapper.Tests.csproj"
     
     # Build test project first
     $testBuildCommand = "dotnet build `"$TestPath`" --configuration $Configuration"

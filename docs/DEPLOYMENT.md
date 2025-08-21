@@ -39,7 +39,7 @@ The project includes PowerShell scripts in the `scripts/` folder for automated N
    scripts\unlist-nuget.bat
 
    # Or specify a version explicitly in PowerShell
-   ./scripts/unlist-nuget.ps1 -Version 1.0.4
+   ./scripts/unlist-nuget.ps1 -Version 1.0.5
    ```
 
 ## Manual Commands (Alternative)
@@ -55,7 +55,7 @@ dotnet test tests/Mapper.Tests.csproj -c Release
 dotnet pack src/Simple.AutoMapper.csproj -c Release -o ./.nupkg
 
 # Upload to NuGet
-dotnet nuget push ./.nupkg/Simple.AutoMapper.1.0.4.nupkg `
+dotnet nuget push ./.nupkg/Simple.AutoMapper.1.0.5.nupkg `
    --source https://api.nuget.org/v3/index.json `
    --api-key $env:NUGET_API_KEY
 ```

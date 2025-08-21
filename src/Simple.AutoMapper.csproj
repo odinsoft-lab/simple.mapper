@@ -9,9 +9,9 @@
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.4</Version>
-		<AssemblyVersion>1.0.4.0</AssemblyVersion>
-		<FileVersion>1.0.4.0</FileVersion>
+		<Version>1.0.5</Version>
+		<AssemblyVersion>1.0.5.0</AssemblyVersion>
+		<FileVersion>1.0.5.0</FileVersion>
 
 		<!-- Package Information -->
 		<IsPackable>true</IsPackable>
@@ -30,7 +30,12 @@
 		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.4 - High-performance object simple mapping for .NET</PackageReleaseNotes>
+		<PackageReleaseNotes>v1.0.5
+ - Core mapper stabilized; fast reflection-based mapping with recursion for complex types
+ - Multi-target: netstandard2.0, netstandard2.1, net8.0, net9.0
+ - Collection mapping and list sync helpers (SyncResult)
+ - Thread-safe caching and embedded symbols (snupkg)
+ - Docs refreshed; known limits: no circular reference handling; ForMember captured but not emitted</PackageReleaseNotes>
 
 		<!-- Repository Information -->
 		<RepositoryUrl>https://github.com/lisa3907/Simple.AutoMapper</RepositoryUrl>

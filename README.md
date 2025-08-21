@@ -2,6 +2,8 @@
 
 High-performance object mapping for .NET. Public usage focuses on a simple reflection-based Mapper API. A compiled MappingEngine exists for internal use and configuration experiments.
 
+Note: This README reflects v1.0.5. See docs/RELEASE-NOTES.md for details.
+
 ## Installation
 
 - NuGet package: Simple.AutoMapper
@@ -47,14 +49,16 @@ Configuration helpers:
 ```csharp
 engine.CreateMap<Entity1, EntityDTO1>()
   .Ignore(d => d.SomeProperty)
-  .PreserveReferences()  // Handle circular references
-  .MaxDepth(5);         // Limit recursion depth
+  // Experimental in v1.0.5 — not fully supported, may not prevent cycles
+  // .PreserveReferences()
+  // .MaxDepth(5)
 
 // Bidirectional mapping
 engine.CreateMap<User, UserDto>()
   .ReverseMap();        // Auto-create UserDto -> User mapping
 
 // NOTE: ForMember is currently stored but not yet applied at compile-time.
+// NOTE: PreserveReferences/MaxDepth are experimental in v1.0.5 and can be considered placeholders.
 ```
 
 EF Core read example (materialize first, then map):
@@ -152,7 +156,7 @@ await db.SaveChangesAsync(cancellationToken);
 ## Limitations (current)
 
 - ForMember mappings are captured but not yet emitted into the compiled expression; Ignore works.
-- Circular references aren’t handled (may cause stack overflows for recursive graphs).
+- Circular references aren’t handled in v1.0.5 (may cause stack overflows for cyclic graphs). The PreserveReferences/MaxDepth options are experimental and not fully supported.
 - Destination types must have parameterless constructors (new()).
 - Do not call mapping APIs inside IQueryable; they cannot be translated to SQL. Use EF Core Select for projections and map after materialization.
 
