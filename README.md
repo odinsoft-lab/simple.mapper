@@ -35,9 +35,8 @@ There are two components:
 using Simple.AutoMapper.Core;
 
 // 1) Configure once at startup
-var engine = new MappingEngine();
-engine.CreateMap<UserEntity, UserDTO>();
-engine.CreateMap<AddressEntity, AddressDTO>();
+Mapper.CreateMap<UserEntity, UserDTO>();
+Mapper.CreateMap<AddressEntity, AddressDTO>();
 
 // 2) Map anywhere in your code using the public Mapper API
 var userDto = Mapper.Map<UserEntity, UserDTO>(userEntity);
@@ -47,14 +46,14 @@ var userDtos = Mapper.Map<UserEntity, UserDTO>(userEntities);
 Configuration helpers:
 
 ```csharp
-engine.CreateMap<Entity1, EntityDTO1>()
+Mapper.CreateMap<Entity1, EntityDTO1>()
   .Ignore(d => d.SomeProperty)
   // Experimental in v1.0.5 — not fully supported, may not prevent cycles
   // .PreserveReferences()
   // .MaxDepth(5)
 
 // Bidirectional mapping
-engine.CreateMap<User, UserDto>()
+Mapper.CreateMap<User, UserDto>()
   .ReverseMap();        // Auto-create UserDto -> User mapping
 
 // NOTE: ForMember is currently stored but not yet applied at compile-time.
@@ -65,9 +64,8 @@ EF Core read example (materialize first, then map):
 
 ```csharp
 // Configure once (e.g., at startup) and keep engine as a singleton
-var engine = new MappingEngine();
-engine.CreateMap<User, UserDto>();
-engine.CreateMap<Address, AddressDto>();
+Mapper.CreateMap<User, UserDto>();
+Mapper.CreateMap<Address, AddressDto>();
 
 // Read list
 var users = await db.Users

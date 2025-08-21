@@ -32,18 +32,17 @@ Date: 2025-08-21
 
 ### Mapping entities with circular references
 ```csharp
-var engine = new MappingEngine();
-engine.CreateMap<Entity10, EntityDTO10>()
+Mapper.CreateMap<Entity10, EntityDTO10>()
   .PreserveReferences()  // track circular references
   .MaxDepth(5);         // limit maximum depth
 
 // Map safely without stack overflow even with cycles
-var dto = engine.MapInstance<Entity10, EntityDTO10>(entity);
+var dto = Mapper.Map<Entity10, EntityDTO10>(entity);
 ```
 
 ### Using ReverseMap
 ```csharp
-engine.CreateMap<Source, Destination>()
+Mapper.CreateMap<Source, Destination>()
   .ReverseMap();  // automatically create Destination → Source mapping
 ```
 
