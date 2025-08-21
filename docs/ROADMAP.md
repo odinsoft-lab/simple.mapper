@@ -38,7 +38,7 @@ Last updated: 2025-08-21
 - IQueryable projections (expression trees translatable by EF Core)
 - C# Source Generator for static mappers (with runtime fallback)
 - Rule-based naming/flattening (e.g., `Parent.ChildId` ↔ `ParentChildId`)
-- Circular reference handling/object identity preservation/max depth ✅ Done (PreserveReferences, MaxDepth)
+- Circular reference handling/object identity preservation/max depth — In progress (experimental in v1.0.5; finalize depth tracking and caching semantics)
 - Analyzer package: detect unmapped members and risky conversions
 - Web documentation site (DocFX/Docusaurus) and sample gallery expansion
 
@@ -48,5 +48,4 @@ Last updated: 2025-08-21
 - Continuously verify multi-target compatibility (netstandard2.0/2.1, net8/9)
 
 ## Breaking Change Management
-- MappingEngine.Map → MapItem transition completed. Further refine release notes/migration guide in upcoming releases.
-- For major future features, consider experimental flags/pre-release channels.
+- No API renames in 1.0.x. For major future features, consider experimental flags/pre-release channels.

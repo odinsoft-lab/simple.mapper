@@ -2,7 +2,7 @@
 
 High-performance object mapping for .NET. Public usage focuses on a simple reflection-based Mapper API. A compiled MappingEngine exists for internal use and configuration experiments.
 
-Note: This README reflects v1.0.5. See docs/RELEASE-NOTES.md for details.
+Note: This README reflects v1.0.5. See docs/RELEASE.md for details.
 
 ## Installation
 
