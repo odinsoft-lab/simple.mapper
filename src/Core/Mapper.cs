@@ -4,18 +4,24 @@ using System.Collections.Generic;
 namespace Simple.AutoMapper.Core
 {
     /// <summary>
-    /// Static mapper facade providing convenient access to MappingEngine functionality
+    /// Static mapper facade for configuring and executing object mappings.
+    /// Exposes simple, reflection-based APIs over the internal MappingEngine.
     /// </summary>
     public static class Mapper
     {
         /// <summary>
-        /// Get the default singleton instance (internal to keep MappingEngine hidden from consumers)
+        /// Gets the default singleton instance of the mapping engine.
+        /// Internal to keep <see cref="MappingEngine"/> hidden from package consumers.
         /// </summary>
         internal static MappingEngine Default => MappingEngine.Instance;
 
         /// <summary>
-        /// Create a mapping configuration between source and destination types
+        /// Creates a mapping configuration between source and destination types.
+        /// Define ignores and member rules via the returned expression.
         /// </summary>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type. Must have parameterless constructor.</typeparam>
+        /// <returns>Mapping expression to configure the map.</returns>
         public static IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
             where TDestination : new()
         {
@@ -23,8 +29,12 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map a single entity to DTO
+        /// Maps a single <typeparamref name="TSource"/> instance to <typeparamref name="TDestination"/>.
         /// </summary>
+        /// <param name="source">Source instance to map from.</param>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type. Must have parameterless constructor.</typeparam>
+        /// <returns>Mapped destination instance, or default if source is null.</returns>
         public static TDestination Map<TSource, TDestination>(TSource source)
             where TDestination : new()
         {
@@ -32,8 +42,11 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map a single entity to DTO (infers source type from parameter)
+        /// Maps a single object to <typeparamref name="TDestination"/> by inferring the source type from the object instance.
         /// </summary>
+        /// <param name="source">Source instance to map from.</param>
+        /// <typeparam name="TDestination">Destination type. Must have parameterless constructor.</typeparam>
+        /// <returns>Mapped destination instance, or default if source is null.</returns>
         public static TDestination Map<TDestination>(object source)
             where TDestination : new()
         {
@@ -41,8 +54,12 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map a collection of TSource to a List of TDestination
+        /// Maps a collection of <typeparamref name="TSource"/> to a List of <typeparamref name="TDestination"/>.
         /// </summary>
+        /// <param name="sourceList">Source collection to map.</param>
+        /// <typeparam name="TSource">Source element type.</typeparam>
+        /// <typeparam name="TDestination">Destination element type. Must have parameterless constructor.</typeparam>
+        /// <returns>List of mapped destination instances, or null if sourceList is null.</returns>
         public static List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> sourceList)
             where TDestination : new()
         {
@@ -50,15 +67,19 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// In-place update of an existing destination from source
+        /// Performs an in-place update of an existing <paramref name="destination"/> instance from the <paramref name="source"/>.
         /// </summary>
+        /// <param name="source">Source instance.</param>
+        /// <param name="destination">Existing destination instance to be updated.</param>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type.</typeparam>
         public static void Map<TSource, TDestination>(TSource source, TDestination destination)
         {
             Default.MapPropertiesGeneric(source, destination);
         }
 
         /// <summary>
-        /// For tests only: reset the underlying singleton state
+        /// Resets the underlying singleton state. Intended for tests only.
         /// </summary>
         internal static MappingEngine Reset()
         {

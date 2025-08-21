@@ -5,49 +5,54 @@ using Simple.AutoMapper.Internal;
 namespace Simple.AutoMapper.Core
 {
     /// <summary>
-    /// Context for tracking mapping state and preventing circular references
-    /// Based on AutoMapper's ResolutionContext pattern
+    /// Context for tracking mapping state during execution and mitigating circular references.
+    /// Holds per-run caches and depth counters used by compiled mappers.
     /// </summary>
     public class MappingContext
     {
         // Cache for tracking object instances to prevent circular references
         private readonly Dictionary<ContextCacheKey, object> _instanceCache = new();
-        
+
         // Track depth for each type pair to enforce MaxDepth
         private readonly Dictionary<TypePair, int> _typeDepth = new();
-        
+
         // Current recursion depth
         private int _currentDepth = 0;
-        
+
         // Configuration values
         private readonly int _maxDepth;
         private readonly bool _preserveReferences;
-        
+
         public bool PreserveReferences => _preserveReferences;
         public int MaxDepth => _maxDepth;
         public int CurrentDepth => _currentDepth;
-        
+
+        /// <summary>
+        /// Creates a new mapping context.
+        /// </summary>
+        /// <param name="maxDepth">Soft limit for recursion (implementation-specific).</param>
+        /// <param name="preserveReferences">Whether to track and preserve object identity.</param>
         public MappingContext(int maxDepth = 10, bool preserveReferences = false)
         {
             _maxDepth = maxDepth > 0 ? maxDepth : 10; // Use default if 0 or negative
             _preserveReferences = preserveReferences;
         }
-        
+
         /// <summary>
-        /// Check if an object would create a circular reference
+        /// Determines whether mapping <paramref name="source"/> into <paramref name="typePair"/> would introduce a circular reference.
         /// </summary>
         public bool IsCircularReference(object source, TypePair typePair)
         {
             if (source == null)
                 return false;
-                
+
             // Always check the cache to detect circular references
             var cacheKey = new ContextCacheKey(source, typePair.DestinationType);
             if (_instanceCache.ContainsKey(cacheKey))
             {
                 return true; // Already processing or processed this instance - circular reference detected
             }
-            
+
             // Check current recursion depth
             // Note: This is a simplified implementation. Proper depth tracking
             // would require incrementing on enter and decrementing on exit.
@@ -56,16 +61,16 @@ namespace Simple.AutoMapper.Core
             {
                 return true; // Max depth reached
             }
-            
+
             // Register this mapping to track circular references
             _instanceCache[cacheKey] = null; // Placeholder until actual mapping completes
             _currentDepth++; // Increment depth when entering a nested mapping
-            
+
             return false;
         }
-        
+
         /// <summary>
-        /// Cache the destination object for a source
+        /// Caches the destination object associated with a source instance.
         /// </summary>
         public void CacheDestination(object source, Type destinationType, object destination)
         {
@@ -75,20 +80,20 @@ namespace Simple.AutoMapper.Core
                 _instanceCache[cacheKey] = destination;
             }
         }
-        
+
         /// <summary>
-        /// Get cached destination if exists
+        /// Gets a previously cached destination for the given source and destination type.
         /// </summary>
         public object GetCachedDestination(object source, Type destinationType)
         {
             if (source == null)
                 return null;
-                
+
             var cacheKey = new ContextCacheKey(source, destinationType);
             _instanceCache.TryGetValue(cacheKey, out var destination);
             return destination;
         }
-        
+
         /// <summary>
         /// Increment the depth counter for a type pair
         /// </summary>
@@ -103,7 +108,7 @@ namespace Simple.AutoMapper.Core
                 _typeDepth[typePair] = 1;
             }
         }
-        
+
         /// <summary>
         /// Decrement the depth counter for a type pair
         /// </summary>
@@ -118,7 +123,7 @@ namespace Simple.AutoMapper.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Decrement the current recursion depth
         /// </summary>
@@ -128,7 +133,7 @@ namespace Simple.AutoMapper.Core
                 _currentDepth--;
         }
     }
-    
+
     /// <summary>
     /// Key for caching mapped instances to prevent circular references
     /// </summary>
@@ -136,13 +141,13 @@ namespace Simple.AutoMapper.Core
     {
         public object Source { get; }
         public Type DestinationType { get; }
-        
+
         public ContextCacheKey(object source, Type destinationType)
         {
             Source = source;
             DestinationType = destinationType;
         }
-        
+
         public override int GetHashCode()
         {
             unchecked
@@ -153,12 +158,12 @@ namespace Simple.AutoMapper.Core
                 return hash;
             }
         }
-        
+
         public bool Equals(ContextCacheKey other)
         {
             return DestinationType == other.DestinationType && ReferenceEquals(Source, other.Source);
         }
-        
+
         public override bool Equals(object obj)
         {
             return obj is ContextCacheKey other && Equals(other);

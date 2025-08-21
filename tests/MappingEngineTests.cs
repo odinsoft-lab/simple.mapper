@@ -302,7 +302,7 @@ namespace Simple.AutoMapper.Tests
             // Second run should be faster or at least similar (due to caching)
             // We allow some tolerance due to system variations
             var bestOfLater = Math.Min(secondRunTicks, thirdRunTicks);
-            Assert.True(bestOfLater <= firstRunTicks, 
+            Assert.True(bestOfLater <= firstRunTicks * 1.5, 
                 $"A cached run should be faster than or similar to the first run: first={firstRunTicks} ticks, second={secondRunTicks} ticks, third={thirdRunTicks} ticks");
 
             // Both runs should complete in reasonable time

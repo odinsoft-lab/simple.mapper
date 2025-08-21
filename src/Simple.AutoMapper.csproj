@@ -3,6 +3,8 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
+		<!-- Generate XML documentation for public APIs so consumers get IntelliSense in NuGet -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
 		<!-- Assembly Information -->
 		<AssemblyName>Simple.AutoMapper</AssemblyName>
@@ -16,6 +18,7 @@
 		<!-- Package Information -->
 		<IsPackable>true</IsPackable>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<PackageId>Simple.AutoMapper</PackageId>
 		<Authors>SEONGAHN LEE</Authors>
 		<Product>Simple.AutoMapper</Product>
@@ -48,7 +51,8 @@
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 
 		<!-- Suppress most warnings except critical ones -->
-		<NoWarn>$(NoWarn);CS1998;CS0618</NoWarn>
+		<!-- Suppress missing XML comment warnings until full coverage is achieved -->
+		<NoWarn>$(NoWarn);CS1998;CS0618;CS1591</NoWarn>
 
 		<!-- Build Settings -->
 		<Deterministic>true</Deterministic>
@@ -61,6 +65,9 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+		<!-- Ensure XML docs are included in the NuGet package build output -->
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	</PropertyGroup>
 
 	<!-- Package Files -->

@@ -10,8 +10,8 @@ using Simple.AutoMapper.Internal;
 namespace Simple.AutoMapper.Core
 {
     /// <summary>
-    /// High-performance mapping engine with both and instance-based APIs
-    /// Provides reflection-based and compiled mapping capabilities
+    /// High-performance mapping engine providing reflection-based and compiled mapping capabilities.
+    /// This type is internal; consumers interact through the public <see cref="Mapper"/> facade.
     /// </summary>
     internal sealed class MappingEngine
     {
@@ -23,7 +23,7 @@ namespace Simple.AutoMapper.Core
         private readonly ConcurrentDictionary<TypePair, IMappingExpression> _mappingExpressions = new();
         private readonly ConcurrentDictionary<TypePair, Delegate> _compiledMappings = new();
         private readonly object _compilationLock = new();
-        
+
         // Default max depth for recursive mapping
         private const int DefaultMaxDepth = 10;
 
@@ -40,8 +40,11 @@ namespace Simple.AutoMapper.Core
         #region API Methods
 
         /// <summary>
-        /// Map a single entity to DTO (infers source type from parameter)
+        /// Maps a single object to <typeparamref name="TDestination"/> by inferring the source type from the object instance.
         /// </summary>
+        /// <param name="source">The source object instance.</param>
+        /// <typeparam name="TDestination">Destination type to create and map to.</typeparam>
+        /// <returns>New destination instance with mapped values, or default if source is null.</returns>
         public TDestination MapPropertiesReflection<TDestination>(object source)
             where TDestination : new()
         {
@@ -58,8 +61,12 @@ namespace Simple.AutoMapper.Core
         #region Instance API Methods
 
         /// <summary>
-        /// Create a mapping configuration between source and destination types
+        /// Creates a mapping configuration between source and destination types.
+        /// Stores configuration for later use by compiled mappers.
         /// </summary>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type.</typeparam>
+        /// <returns>Mapping expression to configure ignores and member rules.</returns>
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
             where TDestination : new()
         {
@@ -74,8 +81,12 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map a single object using instance API
+        /// Maps a single object using the instance API.
         /// </summary>
+        /// <param name="source">Source instance to map.</param>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type.</typeparam>
+        /// <returns>New destination instance with mapped values, or default if source is null.</returns>
         public TDestination MapInstance<TSource, TDestination>(TSource source)
             where TDestination : new()
         {
@@ -84,14 +95,14 @@ namespace Simple.AutoMapper.Core
 
             var typePair = new TypePair(typeof(TSource), typeof(TDestination));
             var mapper = GetOrCompileMapper<TSource, TDestination>(typePair);
-            
+
             // Get configuration if exists
             var config = _mappingExpressions.TryGetValue(typePair, out var expr) ? expr : null;
             var context = new MappingContext(config?.MaxDepthValue ?? DefaultMaxDepth, config?.PreserveReferencesValue ?? false);
-            
+
             return mapper(source, context);
         }
-        
+
         /// <summary>
         /// Map a single object using instance API with mapping context
         /// </summary>
@@ -100,7 +111,7 @@ namespace Simple.AutoMapper.Core
         {
             if (source == null)
                 return default(TDestination);
-                
+
             // Always check if we have a cached instance (for circular references)
             var cached = context.GetCachedDestination(source, typeof(TDestination));
             if (cached != null)
@@ -112,8 +123,12 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map a collection using instance API
+        /// Maps a collection using the instance API.
         /// </summary>
+        /// <param name="sourceList">Source collection to map.</param>
+        /// <typeparam name="TSource">Source element type.</typeparam>
+        /// <typeparam name="TDestination">Destination element type.</typeparam>
+        /// <returns>List of mapped destination elements, or null if sourceList is null.</returns>
         public List<TDestination> MapCollection<TSource, TDestination>(IEnumerable<TSource> sourceList)
             where TDestination : new()
         {
@@ -122,11 +137,11 @@ namespace Simple.AutoMapper.Core
 
             var typePair = new TypePair(typeof(TSource), typeof(TDestination));
             var mapper = GetOrCompileMapper<TSource, TDestination>(typePair);
-            
+
             // Get configuration if exists
             var config = _mappingExpressions.TryGetValue(typePair, out var expr) ? expr : null;
             var context = new MappingContext(config?.MaxDepthValue ?? DefaultMaxDepth, config?.PreserveReferencesValue ?? false);
-            
+
             return sourceList.Select(s => mapper(s, context)).ToList();
         }
 
@@ -135,7 +150,7 @@ namespace Simple.AutoMapper.Core
         #region Compilation and Mapping Logic
 
         /// <summary>
-        /// Get or compile a mapper function for the given type pair
+        /// Gets or compiles a mapper function for the given type pair.
         /// </summary>
         private Func<TSource, MappingContext, TDestination> GetOrCompileMapper<TSource, TDestination>(TypePair typePair)
             where TDestination : new()
@@ -159,7 +174,7 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Compile a mapper function using expression trees
+        /// Compiles a mapper function using expression trees for the specified type pair.
         /// </summary>
         private Func<TSource, MappingContext, TDestination> CompileMapper<TSource, TDestination>(TypePair typePair)
             where TDestination : new()
@@ -172,7 +187,7 @@ namespace Simple.AutoMapper.Core
 
             // Create new instance: var destination = new TDestination();
             expressions.Add(Expression.Assign(destinationVar, Expression.New(typeof(TDestination))));
-            
+
             // Cache the destination immediately to handle circular references
             // context.CacheDestination(source, typeof(TDestination), destination);
             var cacheMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.CacheDestination));
@@ -237,11 +252,11 @@ namespace Simple.AutoMapper.Core
                     {
                         // Create circular reference check using MappingContext
                         var nestedTypePair = new TypePair(sourceProperty.PropertyType, destinationProperty.PropertyType);
-                        
+
                         // Build expression for circular reference check and mapping
                         // if (sourceValue != null && !context.IsCircularReference(sourceValue, nestedTypePair))
                         var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
-                        
+
                         var isCircularMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.IsCircularReference));
                         var circularCheck = Expression.Call(
                             contextParam,
@@ -249,7 +264,7 @@ namespace Simple.AutoMapper.Core
                             Expression.Convert(sourceValue, typeof(object)),
                             Expression.Constant(nestedTypePair)
                         );
-                        
+
                         var notCircular = Expression.Not(circularCheck);
                         var canMap = Expression.AndAlso(nullCheck, notCircular);
 
@@ -316,8 +331,10 @@ namespace Simple.AutoMapper.Core
         #region Reflection-based Mapping (for non-generic overloads)
 
         /// <summary>
-        /// Map properties from source to destination (non-generic version)
+        /// Maps properties from a source object to a destination object (non-generic version).
         /// </summary>
+        /// <param name="source">Source object.</param>
+        /// <param name="destination">Destination object.</param>
         private void MapPropertiesReflection(object source, object destination)
         {
             if (source == null || destination == null)
@@ -378,8 +395,11 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
-        /// Map properties from source to destination (generic version)
+        /// Maps properties from a source object to an existing destination object (generic version).
+        /// Performs an in-place update and supports simple, complex, and collection members.
         /// </summary>
+        /// <param name="source">Source instance.</param>
+        /// <param name="destination">Destination instance to update.</param>
         public void MapPropertiesGeneric<TSource, TDestination>(TSource source, TDestination destination)
         {
             if (source == null || destination == null)
