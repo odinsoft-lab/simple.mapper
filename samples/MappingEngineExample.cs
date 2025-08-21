@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Examples
 {
@@ -88,8 +89,8 @@ namespace Simple.AutoMapper.Examples
                 }
             };
 
-            // Step 4: Map entity to DTO
-            var userDto = engine.Map<UserEntity, UserDTO>(userEntity);
+            // Step 4: Map entity to DTO (public API)
+            var userDto = Mapper.Map<UserEntity, UserDTO>(userEntity);
 
             // The userDto now contains all mapped data including nested objects and collections
             Console.WriteLine($"Mapped User: {userDto.FirstName} {userDto.LastName}");
@@ -123,7 +124,7 @@ namespace Simple.AutoMapper.Examples
                 }
             };
 
-            var userDto = engine.Map<UserEntity, UserDTO>(userEntity);
+            var userDto = Mapper.Map<UserEntity, UserDTO>(userEntity);
             
             // BirthDate will be default value since it was ignored
             Console.WriteLine($"BirthDate (ignored): {userDto.BirthDate}");
@@ -165,7 +166,7 @@ namespace Simple.AutoMapper.Examples
             };
 
             // Map the entire list
-            var userDtos = engine.MapList<UserEntity, UserDTO>(userEntities);
+            var userDtos = Mapper.Map<UserEntity, UserDTO>(userEntities);
 
             Console.WriteLine($"Mapped {userDtos.Count} users");
             foreach (var dto in userDtos)
@@ -205,13 +206,13 @@ namespace Simple.AutoMapper.Examples
             var sw = System.Diagnostics.Stopwatch.StartNew();
             
             // First mapping - will compile and cache the mapping expression
-            var firstDto = engine.Map<UserEntity, UserDTO>(entities[0]);
+            var firstDto = Mapper.Map<UserEntity, UserDTO>(entities[0]);
             sw.Stop();
             Console.WriteLine($"First mapping (with compilation): {sw.ElapsedMilliseconds}ms");
 
             sw.Restart();
             // Subsequent mappings use the cached compiled expression - much faster!
-            var allDtos = engine.MapList<UserEntity, UserDTO>(entities);
+            var allDtos = Mapper.Map<UserEntity, UserDTO>(entities);
             sw.Stop();
             Console.WriteLine($"Mapping {entities.Count} entities (using cache): {sw.ElapsedMilliseconds}ms");
             Console.WriteLine($"Average time per entity: {sw.ElapsedMilliseconds / (double)entities.Count:F4}ms");

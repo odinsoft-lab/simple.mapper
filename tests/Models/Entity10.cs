@@ -1,4 +1,4 @@
-﻿namespace Mapper.Tests.Models;
+﻿namespace Simple.AutoMapper.Tests.Models;
 
 public class Entity10 : BaseEntity
 {

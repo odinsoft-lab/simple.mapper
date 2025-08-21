@@ -1,4 +1,4 @@
-﻿namespace Mapper.Tests.Models.DTO.Collections;
+﻿namespace Simple.AutoMapper.Tests.Models.DTO.Collections;
 
 public class EntityDTO2 : BaseEntity
 {

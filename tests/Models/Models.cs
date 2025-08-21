@@ -1,6 +1,7 @@
-﻿using Mapper.Tests.Models;
-using Mapper.Tests.Models.DTO;
+﻿using Simple.AutoMapper.Tests.Models;
+using Simple.AutoMapper.Tests.Models.DTO;
 using Simple.AutoMapper;
+using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Tests;
 

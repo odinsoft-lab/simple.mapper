@@ -1,4 +1,4 @@
-﻿namespace Mapper.Tests.Models.DTO;
+﻿namespace Simple.AutoMapper.Tests.Models.DTO;
 
 public class EntityDTO9 : BaseEntity
 {

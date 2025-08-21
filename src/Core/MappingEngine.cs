@@ -6,8 +6,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Simple.AutoMapper.Intefaces;
 using Simple.AutoMapper.Internal;
+using Simple.AutoMapper.Core;
 
-namespace Simple.AutoMapper
+namespace Simple.AutoMapper.Core
 {
     /// <summary>
     /// Mapping engine with pre-compiled mappings for better performance
@@ -31,10 +32,10 @@ namespace Simple.AutoMapper
         }
 
         /// <summary>
-        /// Map a single object using pre-compiled mapping
+        /// Map a single object using pre-compiled mapping (internal use)
         /// </summary>
-        public TDestination Map<TSource, TDestination>(TSource source)
-            where TDestination : new()
+        internal TDestination MapItem<TSource, TDestination>(TSource source)
+                where TDestination : new()
         {
             if (source == null)
                 return default(TDestination);
@@ -45,10 +46,10 @@ namespace Simple.AutoMapper
         }
 
         /// <summary>
-        /// Map a collection using pre-compiled mapping
+        /// Map a collection using pre-compiled mapping (internal use)
         /// </summary>
-        public List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> sourceList)
-            where TDestination : new()
+        internal List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> sourceList)
+                where TDestination : new()
         {
             if (sourceList == null)
                 return null;
@@ -89,9 +90,9 @@ namespace Simple.AutoMapper
         {
             var sourceParam = Expression.Parameter(typeof(TSource), "source");
             var destinationVar = Expression.Variable(typeof(TDestination), "destination");
-            
+
             var expressions = new List<Expression>();
-            
+
             // Create new instance: var destination = new TDestination();
             expressions.Add(Expression.Assign(destinationVar, Expression.New(typeof(TDestination))));
 
@@ -128,13 +129,13 @@ namespace Simple.AutoMapper
                     var destinationValue = Expression.Property(destinationVar, destinationProperty);
 
                     // Handle simple types
-                    if (IsMappingType(sourceProperty.PropertyType) && sourceProperty.PropertyType == destinationProperty.PropertyType)
+                    if (IsSimpleType(sourceProperty.PropertyType) && sourceProperty.PropertyType == destinationProperty.PropertyType)
                     {
                         expressions.Add(Expression.Assign(destinationValue, sourceValue));
                     }
                     // Handle nullable to non-nullable or vice versa for simple types
-                    else if (IsMappingType(GetUnderlyingType(sourceProperty.PropertyType)) && 
-                             IsMappingType(GetUnderlyingType(destinationProperty.PropertyType)))
+                    else if (IsSimpleType(GetUnderlyingType(sourceProperty.PropertyType)) &&
+                             IsSimpleType(GetUnderlyingType(destinationProperty.PropertyType)))
                     {
                         var convertedValue = Expression.Convert(sourceValue, destinationProperty.PropertyType);
                         expressions.Add(Expression.Assign(destinationValue, convertedValue));
@@ -144,10 +145,10 @@ namespace Simple.AutoMapper
                     {
                         // Create a null check and recursive mapping
                         var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
-                        
-                        var mapMethod = typeof(MappingEngine).GetMethod(nameof(Map))
+
+                        var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapItem))
                             .MakeGenericMethod(sourceProperty.PropertyType, destinationProperty.PropertyType);
-                        
+
                         var mappedValue = Expression.Call(
                             Expression.Constant(this),
                             mapMethod,
@@ -197,7 +198,7 @@ namespace Simple.AutoMapper
 
             var body = Expression.Block(new[] { destinationVar }, expressions);
             var lambda = Expression.Lambda<Func<TSource, TDestination>>(body, sourceParam);
-            
+
             return lambda.Compile();
         }
 
@@ -206,7 +207,7 @@ namespace Simple.AutoMapper
             return Nullable.GetUnderlyingType(type) ?? type;
         }
 
-        private static bool IsMappingType(Type type)
+        private static bool IsSimpleType(Type type)
         {
             return type.IsPrimitive
                 || type.IsEnum
@@ -216,12 +217,12 @@ namespace Simple.AutoMapper
                 || type == typeof(DateTimeOffset)
                 || type == typeof(TimeSpan)
                 || type == typeof(Guid)
-                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsMappingType(type.GetGenericArguments()[0]));
+                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]));
         }
 
         private static bool IsComplexType(Type type)
         {
-            return type.IsClass && !IsMappingType(type) && !IsCollectionType(type);
+            return type.IsClass && !IsSimpleType(type) && !IsCollectionType(type);
         }
 
         private static bool IsCollectionType(Type type)

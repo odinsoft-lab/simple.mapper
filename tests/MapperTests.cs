@@ -1,5 +1,6 @@
-﻿using Mapper.Tests.Models;
-using Mapper.Tests.Models.DTO;
+﻿using Simple.AutoMapper.Tests.Models;
+using Simple.AutoMapper.Tests.Models.DTO;
+using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Tests
 {
@@ -112,7 +113,7 @@ namespace Simple.AutoMapper.Tests
             };
 
             // Act
-            var dtos = Mapper.MapList<Entity17, EntityDTO17>(entities);
+            var dtos = Mapper.Map<Entity17, EntityDTO17>(entities);
 
             // Assert
             Assert.NotNull(dtos);
@@ -131,7 +132,7 @@ namespace Simple.AutoMapper.Tests
             List<Entity1> entities = null;
 
             // Act
-            var dtos = Mapper.MapList<Entity1, EntityDTO1>(entities);
+            var dtos = Mapper.Map<Entity1, EntityDTO1>(entities);
 
             // Assert
             Assert.Null(dtos);
@@ -144,7 +145,7 @@ namespace Simple.AutoMapper.Tests
             var entities = new List<Entity1>();
 
             // Act
-            var dtos = Mapper.MapList<Entity1, EntityDTO1>(entities);
+            var dtos = Mapper.Map<Entity1, EntityDTO1>(entities);
 
             // Assert
             Assert.NotNull(dtos);
@@ -243,7 +244,7 @@ namespace Simple.AutoMapper.Tests
 
             // Act
             var startTime = DateTime.Now;
-            var dtos = Mapper.MapList<Entity1, EntityDTO1>(entities);
+            var dtos = Mapper.Map<Entity1, EntityDTO1>(entities);
             var endTime = DateTime.Now;
             
             var mappingTime = (endTime - startTime).TotalMilliseconds;

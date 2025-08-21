@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Simple.AutoMapper is a high-performance object mapping library for .NET that uses compiled expression trees for efficient runtime mapping. It provides two main mapping approaches:
-1. **Simple.AutoMapper**: Direct reflection-based mapping without configuration
-2. **MappingEngine**: Pre-compiled mapping with configuration API for optimal performance
+Simple.AutoMapper is a high-performance object mapping library for .NET that offers two main approaches:
+1. **Mapper** (static): Direct reflection-based mapping without configuration
+2. **MappingEngine** (instance): Pre-compiled mapping with a CreateMap configuration API
 
 ## Build Commands
 
@@ -53,26 +53,26 @@ dotnet test --filter "FullyQualifiedName~MappingEngineTests.Map_Entity_ShouldMap
 
 The library is organized into distinct architectural layers:
 
-1. **Public API Layer** (`src/Simple.AutoMapper/`)
-   - `Simple.AutoMapper.cs`: Static utility class for reflection-based mapping
-   - `MappingEngine.cs`: Main engine class with compiled expression support
+1. **Public API Layer** (`src/`)
+   - `Core/Mapper.cs`: Static utility class for reflection-based mapping
+   - `Core/MappingEngine.cs`: Compiled mapping engine with configuration support
 
-2. **Interfaces** (`src/Simple.AutoMapper/Interfaces/`)
+2. **Interfaces** (`src/Interfaces/`)
    - `IMappingExpression`: Base mapping configuration interface
    - `IMappingExpression<TSource, TDestination>`: Generic configuration API
    - `IMemberConfigurationExpression`: Member-level mapping configuration
 
-3. **Internal Implementation** (`src/Simple.AutoMapper/Internal/`)
+3. **Internal Implementation** (`src/Internal/`)
    - `MappingExpression<TSource, TDestination>`: Implements configuration storage
    - `MemberConfigurationExpression`: Handles member-specific configuration
    - `TypePair`: Struct for type-pair caching keys
 
-4. **Extensions** (`src/Simple.AutoMapper/Extensions/`)
-   - `AutoMapperExtensions`: Extension methods for fluent mapping
+4. **Extensions** (`src/Extensions/`)
+   - (none currently)
 
 ### Mapping Engine Architecture
 
-The `MappingEngine` uses a sophisticated caching and compilation strategy:
+The `MappingEngine` uses a caching and compilation strategy:
 
 1. **Type Pair Caching**: Uses `ConcurrentDictionary<TypePair, Delegate>` for thread-safe caching of compiled mappers
 2. **Expression Tree Compilation**: Builds expression trees on first use, then caches the compiled delegate
@@ -81,10 +81,10 @@ The `MappingEngine` uses a sophisticated caching and compilation strategy:
 
 ### Key Design Patterns
 
-- **Expression Trees**: Core mapping logic is built using `System.Linq.Expressions` for optimal runtime performance
-- **Lazy Compilation**: Mappers are compiled on first use, not during configuration
-- **Thread-Safe Caching**: All caching uses `ConcurrentDictionary` for safe multi-threaded access
-- **Fluent Configuration**: CreateMap API uses method chaining for intuitive configuration
+- Expression Trees for compiled mappings
+- Lazy compilation on first use
+- Thread-safe caching with `ConcurrentDictionary`
+- Fluent CreateMap API (Ignore supported; ForMember stored but not yet emitted)
 
 ### Performance Considerations
 
@@ -117,7 +117,7 @@ Tests are organized by mapping scenario:
 
 The `CompileMapper<TSource, TDestination>` method in `MappingEngine.cs` is the heart of the system. When modifying:
 1. Understand the expression tree building process (lines 85-199)
-2. Consider type compatibility checks (IsMappingType, IsComplexType, IsCollectionType)
+2. Consider type compatibility checks (IsSimpleType, IsComplexType, IsCollectionType)
 3. Maintain thread safety with proper locking
 4. Ensure null checks are properly expressed in the tree
 
@@ -131,15 +131,14 @@ The system recognizes three type categories:
 ## Target Frameworks
 
 The library multi-targets:
-- `netstandard2.0`: Maximum compatibility with .NET Framework 4.6.1+
-- `net8.0`: Current LTS version
-- `net9.0`: Latest .NET version
+- `netstandard2.0`, `netstandard2.1` for broad compatibility
+- `net8.0`, `net9.0` for modern runtimes
 
 Tests target `net9.0` and use xUnit as the testing framework.
 
 ## Common Pitfalls
 
-1. **Circular References**: The current implementation doesn't handle circular references - will cause stack overflow
-2. **Interface Mapping**: Destination types must have parameterless constructors (`where TDestination : new()`)
-3. **Collection Element Types**: Only handles generic collections with single type parameter
-4. **Custom Mapping**: ForMember implementation is partially complete - custom expressions aren't fully compiled into the expression tree
+1. Circular references: not supported (risk of stack overflow)
+2. Destination constraints: must have parameterless constructors (`new()`)
+3. Collections: Single-type-parameter collections supported (List<T>, arrays, common interfaces)
+4. Custom mapping: ForMember captured but not yet applied during expression compilation

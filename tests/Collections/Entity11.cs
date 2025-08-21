@@ -1,4 +1,4 @@
-﻿namespace Mapper.Tests.Models.Collections;
+﻿namespace Simple.AutoMapper.Tests.Models.Collections;
 
 public class Entity11 : BaseEntity
 {

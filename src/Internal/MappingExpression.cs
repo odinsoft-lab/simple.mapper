@@ -1,4 +1,5 @@
 ﻿using Simple.AutoMapper.Intefaces;
+using Simple.AutoMapper.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
