@@ -66,8 +66,10 @@ namespace Simple.AutoMapper.Core
             var typePair = new TypePair(typeof(TSource), typeof(TDestination));
             var expression = new MappingExpression<TSource, TDestination>(this);
             _mappingExpressions[typePair] = expression;
+
             // Clear compiled mapping to force recompilation with new configuration
-            _compiledMappings.TryRemove(typePair, out _);
+            //_compiledMappings.TryRemove(typePair, out _); 
+
             return expression;
         }
 
