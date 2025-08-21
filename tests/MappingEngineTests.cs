@@ -154,7 +154,7 @@ namespace Simple.AutoMapper.Tests
             };
 
             // Act
-            var dtos = engine.MapList<Entity17, EntityDTO17>(entities);
+            var dtos = engine.MapCollection<Entity17, EntityDTO17>(entities);
 
             // Assert
             Assert.NotNull(dtos);
@@ -174,7 +174,7 @@ namespace Simple.AutoMapper.Tests
             List<Entity1> entities = null;
 
             // Act
-            var dtos = engine.MapList<Entity1, EntityDTO1>(entities);
+            var dtos = engine.MapCollection<Entity1, EntityDTO1>(entities);
 
             // Assert
             Assert.Null(dtos);
@@ -188,7 +188,7 @@ namespace Simple.AutoMapper.Tests
             var entities = new List<Entity1>();
 
             // Act
-            var dtos = engine.MapList<Entity1, EntityDTO1>(entities);
+            var dtos = engine.MapCollection<Entity1, EntityDTO1>(entities);
 
             // Assert
             Assert.NotNull(dtos);
@@ -273,19 +273,19 @@ namespace Simple.AutoMapper.Tests
 
             // Act - First run (should compile and cache)
             var sw1 = Stopwatch.StartNew();
-            var dtos1 = engine.MapList<Entity1, EntityDTO1>(entities);
+            var dtos1 = engine.MapCollection<Entity1, EntityDTO1>(entities);
             sw1.Stop();
             var firstRunTicks = sw1.ElapsedTicks;
 
             // Act - Second run (should use cached compiled mapping)
             var sw2 = Stopwatch.StartNew();
-            var dtos2 = engine.MapList<Entity1, EntityDTO1>(entities);
+            var dtos2 = engine.MapCollection<Entity1, EntityDTO1>(entities);
             sw2.Stop();
             var secondRunTicks = sw2.ElapsedTicks;
 
             // Act - Third run (extra sample to reduce flakiness)
             var sw3 = Stopwatch.StartNew();
-            var dtos3 = engine.MapList<Entity1, EntityDTO1>(entities);
+            var dtos3 = engine.MapCollection<Entity1, EntityDTO1>(entities);
             sw3.Stop();
             var thirdRunTicks = sw3.ElapsedTicks;
 

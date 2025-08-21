@@ -8,9 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Simple.AutoMapper is a high-performance object mapping library for .NET that offers two main approaches:
-1. **Mapper** (static): Direct reflection-based mapping without configuration
-2. **MappingEngine** (instance): Pre-compiled mapping with a CreateMap configuration API
+Simple.AutoMapper is a high-performance object mapping library for .NET that provides a unified mapping API through the `MappingEngine` class:
+- **Static API**: Direct reflection-based mapping via static methods (no configuration needed)
+- **Instance API**: Pre-compiled mapping with CreateMap configuration for better performance
+- **Mapper Facade**: Convenient static wrapper for MappingEngine static methods
 
 ## Build Commands
 
@@ -53,9 +54,10 @@ dotnet test --filter "FullyQualifiedName~MappingEngineTests.Map_Entity_ShouldMap
 
 The library is organized into distinct architectural layers:
 
-1. **Public API Layer** (`src/`)
-   - `Core/Mapper.cs`: Static utility class for reflection-based mapping
-   - `Core/MappingEngine.cs`: Compiled mapping engine with configuration support
+1. **Public API Layer** (`src/Core/`)
+   - `MappingEngine.cs`: Unified mapping engine with both static and instance APIs
+   - `Mapper.cs`: Static facade providing convenient access to MappingEngine static methods
+   - `SyncResult.cs`: Result structure for synchronization operations
 
 2. **Interfaces** (`src/Interfaces/`)
    - `IMappingExpression`: Base mapping configuration interface
@@ -72,12 +74,25 @@ The library is organized into distinct architectural layers:
 
 ### Mapping Engine Architecture
 
-The `MappingEngine` uses a caching and compilation strategy:
+The `MappingEngine` provides a unified mapping solution with two APIs:
 
-1. **Type Pair Caching**: Uses `ConcurrentDictionary<TypePair, Delegate>` for thread-safe caching of compiled mappers
-2. **Expression Tree Compilation**: Builds expression trees on first use, then caches the compiled delegate
-3. **Configuration Storage**: Maintains mapping configurations separately from compiled functions
-4. **Lock Strategy**: Uses object-level locking during compilation to prevent duplicate compilation
+#### Static API (No Configuration Required)
+- `Map<TSource, TDestination>(source)`: Map single objects
+- `Map<TDestination>(object)`: Map with runtime type inference
+- `Map<TSource, TDestination>(collection)`: Map collections
+- `Map<TSource, TDestination>(source, dest)`: In-place updates
+
+#### Instance API (With Configuration Support)
+- `CreateMap<TSource, TDestination>()`: Configure mapping rules
+- `MapInstance<TSource, TDestination>(source)`: Use configured mappings
+- `MapCollection<TSource, TDestination>(collection)`: Map with configuration
+
+#### Internal Architecture
+1. **Singleton Pattern**: Default instance via `MappingEngine.Default` for static API
+2. **Type Pair Caching**: `ConcurrentDictionary<TypePair, Delegate>` for compiled mappers
+3. **Expression Tree Compilation**: Builds and caches expression trees on first use
+4. **Configuration Storage**: Separate storage for mapping configurations
+5. **Thread Safety**: Object-level locking during compilation phase
 
 ### Key Design Patterns
 
@@ -116,10 +131,11 @@ Tests are organized by mapping scenario:
 ### Modifying Expression Compilation
 
 The `CompileMapper<TSource, TDestination>` method in `MappingEngine.cs` is the heart of the system. When modifying:
-1. Understand the expression tree building process (lines 85-199)
+1. Understand the expression tree building process
 2. Consider type compatibility checks (IsSimpleType, IsComplexType, IsCollectionType)
 3. Maintain thread safety with proper locking
 4. Ensure null checks are properly expressed in the tree
+5. Remember that both reflection-based (for non-generic) and compiled approaches are used
 
 ### Type Handling Hierarchy
 

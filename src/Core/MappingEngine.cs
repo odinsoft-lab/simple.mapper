@@ -6,18 +6,74 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Simple.AutoMapper.Intefaces;
 using Simple.AutoMapper.Internal;
-using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Core
 {
     /// <summary>
-    /// Mapping engine with pre-compiled mappings for better performance
+    /// High-performance mapping engine with both static and instance-based APIs
+    /// Provides reflection-based and compiled mapping capabilities
     /// </summary>
     public class MappingEngine
     {
-        private readonly ConcurrentDictionary<Internal.TypePair, IMappingExpression> _mappingExpressions = new();
-        private readonly ConcurrentDictionary<Internal.TypePair, Delegate> _compiledMappings = new();
+        // Singleton instance for static API
+        private static readonly Lazy<MappingEngine> _defaultInstance = new Lazy<MappingEngine>(() => new MappingEngine());
+        
+        // Configuration and compilation caches
+        private readonly ConcurrentDictionary<TypePair, IMappingExpression> _mappingExpressions = new();
+        private readonly ConcurrentDictionary<TypePair, Delegate> _compiledMappings = new();
         private readonly object _compilationLock = new();
+
+        /// <summary>
+        /// Get the default singleton instance
+        /// </summary>
+        public static MappingEngine Default => _defaultInstance.Value;
+
+        #region Static API Methods
+
+        /// <summary>
+        /// Map a single entity to DTO using static API
+        /// </summary>
+        public static TDestination Map<TSource, TDestination>(TSource source)
+            where TDestination : new()
+        {
+            return Default.MapInstance<TSource, TDestination>(source);
+        }
+
+        /// <summary>
+        /// Map a single entity to DTO (infers source type from parameter)
+        /// </summary>
+        public static TDestination Map<TDestination>(object source)
+            where TDestination : new()
+        {
+            if (source == null)
+                return default(TDestination);
+
+            var destination = new TDestination();
+            MapPropertiesReflection(source, destination);
+            return destination;
+        }
+
+        /// <summary>
+        /// Map a collection of TSource to a List of TDestination
+        /// </summary>
+        public static List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> sourceList)
+            where TDestination : new()
+        {
+            return Default.MapCollection<TSource, TDestination>(sourceList);
+        }
+
+        /// <summary>
+        /// In-place update of an existing destination from source
+        /// </summary>
+        public static void Map<TSource, TDestination>(TSource source, TDestination destination)
+        {
+            if (source == null || destination == null) return;
+            MapPropertiesGeneric(source, destination);
+        }
+
+        #endregion
+
+        #region Instance API Methods
 
         /// <summary>
         /// Create a mapping configuration between source and destination types
@@ -25,43 +81,63 @@ namespace Simple.AutoMapper.Core
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
             where TDestination : new()
         {
-            var typePair = new Internal.TypePair(typeof(TSource), typeof(TDestination));
+            var typePair = new TypePair(typeof(TSource), typeof(TDestination));
             var expression = new MappingExpression<TSource, TDestination>(this);
             _mappingExpressions[typePair] = expression;
+            // Clear compiled mapping to force recompilation with new configuration
+            _compiledMappings.TryRemove(typePair, out _);
             return expression;
         }
 
         /// <summary>
-        /// Map a single object using pre-compiled mapping (internal use)
+        /// Map a single object using instance API
         /// </summary>
-        internal TDestination MapItem<TSource, TDestination>(TSource source)
-                where TDestination : new()
+        public TDestination MapInstance<TSource, TDestination>(TSource source)
+            where TDestination : new()
         {
             if (source == null)
                 return default(TDestination);
 
-            var typePair = new Internal.TypePair(typeof(TSource), typeof(TDestination));
+            var typePair = new TypePair(typeof(TSource), typeof(TDestination));
             var mapper = GetOrCompileMapper<TSource, TDestination>(typePair);
             return mapper(source);
         }
 
         /// <summary>
-        /// Map a collection using pre-compiled mapping (internal use)
+        /// Map a collection using instance API
         /// </summary>
-        internal List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> sourceList)
-                where TDestination : new()
+        public List<TDestination> MapCollection<TSource, TDestination>(IEnumerable<TSource> sourceList)
+            where TDestination : new()
         {
             if (sourceList == null)
                 return null;
 
-            var mapper = GetOrCompileMapper<TSource, TDestination>(new Internal.TypePair(typeof(TSource), typeof(TDestination)));
+            var mapper = GetOrCompileMapper<TSource, TDestination>(new TypePair(typeof(TSource), typeof(TDestination)));
             return sourceList.Select(mapper).ToList();
         }
+
+        #endregion
+
+        #region Internal Methods (Used by both Static and Instance APIs)
+
+        /// <summary>
+        /// Map a single object using pre-compiled mapping (internal use for backward compatibility)
+        /// </summary>
+        internal TDestination MapItem<TSource, TDestination>(TSource source)
+            where TDestination : new()
+        {
+            return MapInstance<TSource, TDestination>(source);
+        }
+
+
+        #endregion
+
+        #region Compilation and Mapping Logic
 
         /// <summary>
         /// Get or compile a mapper function for the given type pair
         /// </summary>
-        private Func<TSource, TDestination> GetOrCompileMapper<TSource, TDestination>(Internal.TypePair typePair)
+        private Func<TSource, TDestination> GetOrCompileMapper<TSource, TDestination>(TypePair typePair)
             where TDestination : new()
         {
             if (_compiledMappings.TryGetValue(typePair, out var cached))
@@ -85,7 +161,7 @@ namespace Simple.AutoMapper.Core
         /// <summary>
         /// Compile a mapper function using expression trees
         /// </summary>
-        private Func<TSource, TDestination> CompileMapper<TSource, TDestination>(Internal.TypePair typePair)
+        private Func<TSource, TDestination> CompileMapper<TSource, TDestination>(TypePair typePair)
             where TDestination : new()
         {
             var sourceParam = Expression.Parameter(typeof(TSource), "source");
@@ -146,7 +222,7 @@ namespace Simple.AutoMapper.Core
                         // Create a null check and recursive mapping
                         var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
 
-                        var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapItem))
+                        var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstance))
                             .MakeGenericMethod(sourceProperty.PropertyType, destinationProperty.PropertyType);
 
                         var mappedValue = Expression.Call(
@@ -172,8 +248,8 @@ namespace Simple.AutoMapper.Core
                         {
                             var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
 
-                            // Use MapList for collection mapping
-                            var mapListMethod = typeof(MappingEngine).GetMethod(nameof(MapList))
+                            // Use MapCollection for collection mapping
+                            var mapListMethod = typeof(MappingEngine).GetMethod(nameof(MapCollection))
                                 .MakeGenericMethod(sourceElementType, destinationElementType);
 
                             var mappedCollection = Expression.Call(
@@ -201,6 +277,229 @@ namespace Simple.AutoMapper.Core
 
             return lambda.Compile();
         }
+
+        #endregion
+
+        #region Reflection-based Mapping (for non-generic overloads)
+
+        /// <summary>
+        /// Map properties from source to destination (non-generic version)
+        /// </summary>
+        private static void MapPropertiesReflection(object source, object destination)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var sourceType = source.GetType();
+            var destinationType = destination.GetType();
+
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var destinationProperties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                if (!sourceProperty.CanRead)
+                    continue;
+
+                if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+                {
+                    try
+                    {
+                        var sourceValue = sourceProperty.GetValue(source);
+
+                        if (sourceValue == null)
+                        {
+                            destinationProperty.SetValue(destination, null);
+                            continue;
+                        }
+
+                        // Handle value types and strings
+                        if (IsSimpleType(sourceProperty.PropertyType))
+                        {
+                            if (sourceProperty.PropertyType == destinationProperty.PropertyType)
+                            {
+                                destinationProperty.SetValue(destination, sourceValue);
+                            }
+                        }
+                        // Handle nested complex types
+                        else if (IsComplexType(sourceProperty.PropertyType) && IsComplexType(destinationProperty.PropertyType))
+                        {
+                            var mappedValue = MapComplexTypeReflection(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedValue);
+                        }
+                        // Handle collections
+                        else if (IsCollectionType(sourceProperty.PropertyType) && IsCollectionType(destinationProperty.PropertyType))
+                        {
+                            var mappedCollection = MapCollectionReflection(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedCollection);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip properties that cannot be mapped
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Map properties from source to destination (generic version)
+        /// </summary>
+        private static void MapPropertiesGeneric<TSource, TDestination>(TSource source, TDestination destination)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var sourceType = typeof(TSource);
+            var destinationType = typeof(TDestination);
+
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var destinationProperties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                if (!sourceProperty.CanRead)
+                    continue;
+
+                if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+                {
+                    try
+                    {
+                        var sourceValue = sourceProperty.GetValue(source);
+
+                        if (sourceValue == null)
+                        {
+                            destinationProperty.SetValue(destination, null);
+                            continue;
+                        }
+
+                        // Handle value types and strings
+                        if (IsSimpleType(sourceProperty.PropertyType))
+                        {
+                            if (sourceProperty.PropertyType == destinationProperty.PropertyType)
+                            {
+                                destinationProperty.SetValue(destination, sourceValue);
+                            }
+                        }
+                        // Handle nested complex types
+                        else if (IsComplexType(sourceProperty.PropertyType) && IsComplexType(destinationProperty.PropertyType))
+                        {
+                            var mappedValue = MapComplexTypeReflection(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedValue);
+                        }
+                        // Handle collections
+                        else if (IsCollectionType(sourceProperty.PropertyType) && IsCollectionType(destinationProperty.PropertyType))
+                        {
+                            var mappedCollection = MapCollectionReflection(sourceValue, sourceProperty.PropertyType, destinationProperty.PropertyType);
+                            destinationProperty.SetValue(destination, mappedCollection);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip properties that cannot be mapped
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Map complex nested types using reflection
+        /// </summary>
+        private static object MapComplexTypeReflection(object sourceValue, Type sourceType, Type destinationType)
+        {
+            if (sourceValue == null)
+                return null;
+
+            // Create instance of destination type
+            var destination = Activator.CreateInstance(destinationType);
+
+            // Use reflection to call MapPropertiesReflection
+            MapPropertiesReflection(sourceValue, destination);
+
+            return destination;
+        }
+
+        /// <summary>
+        /// Map collections using reflection
+        /// </summary>
+        private static object MapCollectionReflection(object sourceCollection, Type sourceType, Type destinationType)
+        {
+            if (sourceCollection == null)
+                return null;
+
+            var sourceElementType = GetCollectionElementType(sourceType);
+            var destinationElementType = GetCollectionElementType(destinationType);
+
+            if (sourceElementType == null || destinationElementType == null)
+                return null;
+
+            // Handle List<T>
+            if (destinationType.IsGenericType && destinationType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var listType = typeof(List<>).MakeGenericType(destinationElementType);
+                var list = Activator.CreateInstance(listType);
+                var addMethod = listType.GetMethod("Add");
+
+                foreach (var item in (System.Collections.IEnumerable)sourceCollection)
+                {
+                    if (item == null)
+                    {
+                        addMethod.Invoke(list, new object[] { null });
+                    }
+                    else if (IsSimpleType(sourceElementType))
+                    {
+                        addMethod.Invoke(list, new[] { item });
+                    }
+                    else
+                    {
+                        var mappedItem = MapComplexTypeReflection(item, sourceElementType, destinationElementType);
+                        addMethod.Invoke(list, new[] { mappedItem });
+                    }
+                }
+
+                return list;
+            }
+
+            // Handle Arrays
+            if (destinationType.IsArray)
+            {
+                var sourceList = new List<object>();
+                foreach (var item in (System.Collections.IEnumerable)sourceCollection)
+                {
+                    if (item == null)
+                    {
+                        sourceList.Add(null);
+                    }
+                    else if (IsSimpleType(sourceElementType))
+                    {
+                        sourceList.Add(item);
+                    }
+                    else
+                    {
+                        var mappedItem = MapComplexTypeReflection(item, sourceElementType, destinationElementType);
+                        sourceList.Add(mappedItem);
+                    }
+                }
+
+                var array = Array.CreateInstance(destinationElementType, sourceList.Count);
+                for (int i = 0; i < sourceList.Count; i++)
+                {
+                    array.SetValue(sourceList[i], i);
+                }
+
+                return array;
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Type Helper Methods
 
         private static Type GetUnderlyingType(Type type)
         {
@@ -246,5 +545,7 @@ namespace Simple.AutoMapper.Core
 
             return null;
         }
+
+        #endregion
     }
 }

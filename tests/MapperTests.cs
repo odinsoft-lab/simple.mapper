@@ -159,7 +159,7 @@ namespace Simple.AutoMapper.Tests
         //     var entity = new Entity25 { Id = Guid.NewGuid() };
 
         //     // Act
-        //     var dto = entity.MapTo<EntityDTO25>();
+        //     var dto = entity.Map<EntityDTO25>();
 
         //     // Assert
         //     Assert.NotNull(dto);
@@ -177,7 +177,7 @@ namespace Simple.AutoMapper.Tests
         //     };
 
         //     // Act
-        //     var dtos = entities.MapToList<EntityDTO13>();
+        //     var dtos = entities.Map<EntityDTO13>();
 
         //     // Assert
         //     Assert.NotNull(dtos);
