@@ -2,18 +2,18 @@
 
 Updated: 2025-08-21
 
-## Must-do (이번 스프린트)
-- [ ] 릴리스 노트 작성: MappingEngine.Map 제거 및 MapItem 전환 공지, README 반영 확인
-- [ ] 성능 테스트 분리: BenchmarkDotNet 프로젝트 신설(tests/Benchmarks) 및 기존 xUnit 성능 테스트 이관/간소화
-- [ ] 문서 보강: ForMember 제한 사항과 ROADMAP 링크 추가, DEPLOYMENT 최신화 재확인
-- [ ] CI 구성: GitHub Actions 워크플로 초안(push/PR 시 빌드+테스트)
+## Must-do (this sprint)
+- [ ] Write release notes: Announce MappingEngine.Map removal and the switch to MapItem; verify README reflects this
+- [ ] Split performance tests: Create BenchmarkDotNet project (tests/Benchmarks) and migrate/simplify existing xUnit perf tests
+- [ ] Strengthen docs: Add ForMember limitations and ROADMAP link; re-verify DEPLOYMENT is up to date
+- [ ] CI setup: Draft GitHub Actions workflow (build + test on push/PR)
 
-## Quick wins(당장 적용 가능)
-- [ ] MappingEngine/Mapper 공용 XML 주석 보강 및 NuGet 패키지 포함 설정
-- [ ] Sample 코드 최신화 재확인(MapItem 사용, net9 빌드 확인)
-- [ ] 성능 테스트 허용치/불안정성 주석 추가(테스트 유지 사유와 대안 문서화)
+## Quick wins (immediately applicable)
+- [ ] Improve shared XML docs for MappingEngine/Mapper and include them in the NuGet package
+- [ ] Recheck sample code is up to date (uses MapItem, builds on net9)
+- [ ] Add comments about performance test tolerances/flakiness (document reasons for keeping tests and alternatives)
 
-## Backlog(단기)
-- [ ] DI 통합 초안: IServiceCollection 확장 메서드 설계(엔진 싱글턴 등록)
-- [ ] MapList의 null → 빈 리스트로 반환 옵션 검토(옵션 플래그)
-- [ ] 컬렉션 타입 추가 테스트(배열/HashSet/Dictionary) 스켈레톤 생성
+## Backlog (short-term)
+- [ ] DI integration draft: Design IServiceCollection extension methods (register engine as singleton)
+- [ ] Consider option for MapCollection to return an empty list instead of null (option flag)
+- [ ] Add tests for additional collection types (array/HashSet/Dictionary) — create skeleton

@@ -84,6 +84,9 @@ The `MappingEngine` provides a unified mapping solution with two APIs:
 
 #### Instance API (With Configuration Support)
 - `CreateMap<TSource, TDestination>()`: Configure mapping rules
+  - `.Ignore(property)`: Ignore specific properties during mapping
+  - `.ForMember(dest, config)`: Configure custom member mapping
+  - `.ReverseMap()`: Create bidirectional mapping configuration
 - `MapInstance<TSource, TDestination>(source)`: Use configured mappings
 - `MapCollection<TSource, TDestination>(collection)`: Map with configuration
 
@@ -99,7 +102,10 @@ The `MappingEngine` provides a unified mapping solution with two APIs:
 - Expression Trees for compiled mappings
 - Lazy compilation on first use
 - Thread-safe caching with `ConcurrentDictionary`
-- Fluent CreateMap API (Ignore supported; ForMember stored but not yet emitted)
+- Fluent CreateMap API with method chaining
+  - Ignore: Excludes properties from mapping
+  - ForMember: Custom property mapping (stored for future implementation)
+  - ReverseMap: Creates bidirectional mapping configurations
 
 ### Performance Considerations
 

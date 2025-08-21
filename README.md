@@ -46,9 +46,15 @@ Configuration helpers:
 
 ```csharp
 engine.CreateMap<Entity1, EntityDTO1>()
-  .Ignore(d => d.SomeProperty);
-  // .ForMember(d => d.CustomProp, opt => opt.MapFrom(s => s.SourceProp));
-  // NOTE: ForMember is currently stored but not yet applied at compile-time.
+  .Ignore(d => d.SomeProperty)
+  .PreserveReferences()  // Handle circular references
+  .MaxDepth(5);         // Limit recursion depth
+
+// Bidirectional mapping
+engine.CreateMap<User, UserDto>()
+  .ReverseMap();        // Auto-create UserDto -> User mapping
+
+// NOTE: ForMember is currently stored but not yet applied at compile-time.
 ```
 
 EF Core read example (materialize first, then map):

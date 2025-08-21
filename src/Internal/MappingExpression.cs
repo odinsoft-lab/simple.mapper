@@ -15,9 +15,13 @@ namespace Simple.AutoMapper.Internal
         private readonly MappingEngine _engine;
         private readonly HashSet<string> _ignoredProperties = new();
         private readonly Dictionary<string, object> _customMappings = new();
+        private int _maxDepth = 0; // 0 means unlimited
+        private bool _preserveReferences = false;
 
         public Type SourceType => typeof(TSource);
         public Type DestinationType => typeof(TDestination);
+        public int MaxDepthValue => _maxDepth;
+        public bool PreserveReferencesValue => _preserveReferences;
 
         public MappingExpression(MappingEngine engine)
         {
@@ -39,6 +43,35 @@ namespace Simple.AutoMapper.Internal
             var config = new MemberConfigurationExpression<TSource, TDestination, TMember>();
             memberOptions(config);
             _customMappings[memberName] = config;
+            return this;
+        }
+
+        public IMappingExpression<TDestination, TSource> ReverseMap()
+        {
+            // Check if TSource has a parameterless constructor
+            var sourceType = typeof(TSource);
+            if (sourceType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                throw new InvalidOperationException($"Cannot create reverse mapping: {sourceType.Name} does not have a parameterless constructor.");
+            }
+            
+            // Use reflection to call CreateMap with runtime types
+            var createMapMethod = typeof(MappingEngine).GetMethod(nameof(MappingEngine.CreateMap));
+            var genericMethod = createMapMethod.MakeGenericMethod(typeof(TDestination), typeof(TSource));
+            var reverseMapping = genericMethod.Invoke(_engine, null);
+            
+            return (IMappingExpression<TDestination, TSource>)reverseMapping;
+        }
+        
+        public IMappingExpression<TSource, TDestination> MaxDepth(int depth)
+        {
+            _maxDepth = depth;
+            return this;
+        }
+        
+        public IMappingExpression<TSource, TDestination> PreserveReferences()
+        {
+            _preserveReferences = true;
             return this;
         }
 

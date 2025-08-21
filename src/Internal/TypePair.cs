@@ -5,7 +5,7 @@ namespace Simple.AutoMapper.Internal
     /// <summary>
     /// Type pair for caching mappings
     /// </summary>
-    internal struct TypePair : IEquatable<TypePair>
+    public struct TypePair : IEquatable<TypePair>
     {
         public Type SourceType { get; }
         public Type DestinationType { get; }

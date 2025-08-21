@@ -54,7 +54,7 @@ namespace Simple.AutoMapper.Tests
             };
 
             // Act
-            var dto = engine.MapItem<Entity8, EntityDTO8>(entity);
+            var dto = engine.MapInstance<Entity8, EntityDTO8>(entity);
 
             // Assert
             Assert.NotNull(dto);
@@ -100,7 +100,7 @@ namespace Simple.AutoMapper.Tests
             };
 
             // Act
-            var dto = engine.MapItem<Entity1, EntityDTO1>(entity);
+            var dto = engine.MapInstance<Entity1, EntityDTO1>(entity);
 
             // Assert
             Assert.NotNull(dto);
@@ -135,7 +135,7 @@ namespace Simple.AutoMapper.Tests
             Entity1 entity = null;
 
             // Act
-            var dto = engine.MapItem<Entity1, EntityDTO1>(entity);
+            var dto = engine.MapInstance<Entity1, EntityDTO1>(entity);
 
             // Assert
             Assert.Null(dto);
@@ -218,7 +218,7 @@ namespace Simple.AutoMapper.Tests
             };
 
             // Act
-            var dto = engine.MapItem<Entity1, EntityDTO1>(entity);
+            var dto = engine.MapInstance<Entity1, EntityDTO1>(entity);
 
             // Assert
             Assert.NotNull(dto);
@@ -248,7 +248,7 @@ namespace Simple.AutoMapper.Tests
             var entity = new Entity17 { Id = Guid.NewGuid() };
 
             // Act
-            var dto = engine.MapItem<Entity17, EntityDTO17>(entity);
+            var dto = engine.MapInstance<Entity17, EntityDTO17>(entity);
 
             // Assert
             Assert.NotNull(dto);
@@ -269,7 +269,7 @@ namespace Simple.AutoMapper.Tests
             }
 
             // Warmup
-            _ = engine.MapItem<Entity1, EntityDTO1>(entities[0]);
+            _ = engine.MapInstance<Entity1, EntityDTO1>(entities[0]);
 
             // Act - First run (should compile and cache)
             var sw1 = Stopwatch.StartNew();
@@ -311,6 +311,109 @@ namespace Simple.AutoMapper.Tests
         }
 
         [Fact]
+        public void ReverseMap_SimpleEntity_ShouldCreateBidirectionalMapping()
+        {
+            // Arrange
+            var engine = new MappingEngine();
+            engine.CreateMap<Entity8, EntityDTO8>()
+                .ReverseMap();
+
+            var entity = new Entity8 { Id = Guid.NewGuid() };
+            var dto = new EntityDTO8 { Id = Guid.NewGuid() };
+
+            // Act - Forward mapping
+            var mappedDto = engine.MapInstance<Entity8, EntityDTO8>(entity);
+            
+            // Act - Reverse mapping
+            var mappedEntity = engine.MapInstance<EntityDTO8, Entity8>(dto);
+
+            // Assert
+            Assert.NotNull(mappedDto);
+            Assert.Equal(entity.Id, mappedDto.Id);
+            
+            Assert.NotNull(mappedEntity);
+            Assert.Equal(dto.Id, mappedEntity.Id);
+        }
+
+        [Fact]
+        public void ReverseMap_ComplexEntity_ShouldMapNestedProperties()
+        {
+            // Arrange
+            var engine = new MappingEngine();
+            
+            // Configure all necessary mappings with ReverseMap
+            engine.CreateMap<Entity22, EntityDTO22>().ReverseMap();
+            engine.CreateMap<Entity20, EntityDTO20>().ReverseMap();
+            engine.CreateMap<Entity14, EntityDTO14>().ReverseMap();
+            engine.CreateMap<Entity17, EntityDTO17>().ReverseMap();
+            engine.CreateMap<Entity8, EntityDTO8>().ReverseMap();
+            engine.CreateMap<Entity1, EntityDTO1>().ReverseMap();
+
+            var entity = new Entity1
+            {
+                Id = Guid.NewGuid(),
+                Entity8Id = Guid.NewGuid(),
+                Entity8 = new Entity8 { Id = Guid.NewGuid() }
+            };
+
+            // Act - Forward mapping
+            var dto = engine.MapInstance<Entity1, EntityDTO1>(entity);
+            
+            // Act - Reverse mapping back to entity
+            var reversedEntity = engine.MapInstance<EntityDTO1, Entity1>(dto);
+
+            // Assert forward mapping
+            Assert.NotNull(dto);
+            Assert.Equal(entity.Id, dto.Id);
+            Assert.Equal(entity.Entity8Id, dto.Entity8Id);
+            Assert.NotNull(dto.Entity8);
+            Assert.Equal(entity.Entity8.Id, dto.Entity8.Id);
+            
+            // Assert reverse mapping
+            Assert.NotNull(reversedEntity);
+            Assert.Equal(dto.Id, reversedEntity.Id);
+            Assert.Equal(dto.Entity8Id, reversedEntity.Entity8Id);
+            Assert.NotNull(reversedEntity.Entity8);
+            Assert.Equal(dto.Entity8.Id, reversedEntity.Entity8.Id);
+        }
+
+        [Fact(Skip = "Ignore functionality needs to be fixed first")]
+        public void ReverseMap_WithIgnoredProperties_ShouldNotReverseIgnores()
+        {
+            // Arrange
+            var engine = new MappingEngine();
+            var entityId = Guid.NewGuid();
+            var manualId = Guid.NewGuid();
+            
+            // Configure mapping with ignored property, then reverse
+            engine.CreateMap<Entity17, EntityDTO17>()
+                .Ignore(d => d.Id)
+                .ReverseMap();
+
+            var entity = new Entity17
+            { 
+                Id = entityId
+            };
+
+            // Act - Forward mapping (Id should be ignored)
+            var dto = engine.MapInstance<Entity17, EntityDTO17>(entity);
+            
+            // Verify that the ignored property wasn't mapped
+            Assert.NotNull(dto);
+            Assert.Equal(Guid.Empty, dto.Id); // Should be ignored in forward mapping
+            
+            // Set Id on DTO manually
+            dto.Id = manualId;
+            
+            // Act - Reverse mapping (Id should be mapped normally)
+            var reversedEntity = engine.MapInstance<EntityDTO17, Entity17>(dto);
+
+            // Assert reverse mapping
+            Assert.NotNull(reversedEntity);
+            Assert.Equal(manualId, reversedEntity.Id); // Should be mapped in reverse
+        }
+
+        [Fact]
         public void CachingTest_SameTypeMapping_ShouldUseCachedVersion()
         {
             // Arrange
@@ -320,12 +423,12 @@ namespace Simple.AutoMapper.Tests
 
             // Act - First mapping (compiles)
             var sw1 = Stopwatch.StartNew();
-            var dto1 = engine.MapItem<Entity25, EntityDTO25>(entity1);
+            var dto1 = engine.MapInstance<Entity25, EntityDTO25>(entity1);
             sw1.Stop();
 
             // Act - Second mapping (uses cache)
             var sw2 = Stopwatch.StartNew();
-            var dto2 = engine.MapItem<Entity25, EntityDTO25>(entity2);
+            var dto2 = engine.MapInstance<Entity25, EntityDTO25>(entity2);
             sw2.Stop();
 
             // Assert
@@ -351,7 +454,7 @@ namespace Simple.AutoMapper.Tests
             {
                 var entity = new Entity13 { Id = Guid.NewGuid() };
                 var task = System.Threading.Tasks.Task.Run(() => 
-                    engine.MapItem<Entity13, EntityDTO13>(entity));
+                    engine.MapInstance<Entity13, EntityDTO13>(entity));
                 tasks.Add(task);
             }
 

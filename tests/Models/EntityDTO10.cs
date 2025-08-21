@@ -4,7 +4,8 @@ public class EntityDTO10 : BaseEntity
 {
     public EntityDTO10()
     {
-        this.Entities11 = new EntityDTO11();
+        // Don't create circular reference in constructor
+        // this.Entities11 = new EntityDTO11();
     }
     public EntityDTO11 Entities11 { get; set; }
 }
