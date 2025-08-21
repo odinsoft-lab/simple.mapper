@@ -207,5 +207,56 @@ namespace Simple.AutoMapper.Examples
             Console.WriteLine($"Mapping {entities.Count} entities (using cache): {sw.ElapsedMilliseconds}ms");
             Console.WriteLine($"Average time per entity: {sw.ElapsedMilliseconds / (double)entities.Count:F4}ms");
         }
+
+        /// <summary>
+        /// Demonstrates in-place updates: copy values from source into an existing destination instance
+        /// </summary>
+        public static void InPlaceUpdateExample()
+        {
+            // Configure the mappings used for nested objects
+            Mapper.CreateMap<UserEntity, UserDTO>();
+            Mapper.CreateMap<AddressEntity, AddressDTO>();
+
+            // Existing destination instance (e.g., tracked entity or cached DTO)
+            var existingDto = new UserDTO
+            {
+                Id = 1,
+                FirstName = "Old",
+                LastName = "Name",
+                BirthDate = new DateTime(1980, 1, 1),
+                Address = new AddressDTO
+                {
+                    Street = "Old St",
+                    City = "OldCity",
+                    ZipCode = "00000"
+                }
+            };
+
+            // Source with updated values
+            var source = new UserEntity
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Updated",
+                BirthDate = new DateTime(1990, 1, 1),
+                Address = new AddressEntity
+                {
+                    Street = "123 Main St",
+                    City = "New York",
+                    ZipCode = "10001"
+                }
+            };
+
+            Console.WriteLine("Before in-place update:");
+            Console.WriteLine($"  Name: {existingDto.FirstName} {existingDto.LastName}");
+            Console.WriteLine($"  Address: {existingDto.Address?.Street}, {existingDto.Address?.City} {existingDto.Address?.ZipCode}");
+
+            // Perform in-place update
+            Mapper.Map(source, existingDto);
+
+            Console.WriteLine("After in-place update:");
+            Console.WriteLine($"  Name: {existingDto.FirstName} {existingDto.LastName}");
+            Console.WriteLine($"  Address: {existingDto.Address?.Street}, {existingDto.Address?.City} {existingDto.Address?.ZipCode}");
+        }
     }
 }

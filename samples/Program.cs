@@ -7,3 +7,5 @@ MappingEngineExample.AdvancedConfigurationExample();
 MappingEngineExample.CollectionMappingExample();
 
 MappingEngineExample.PerformanceBenefitsExample();
+
+MappingEngineExample.InPlaceUpdateExample();

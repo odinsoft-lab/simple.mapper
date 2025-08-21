@@ -267,5 +267,73 @@ namespace Simple.AutoMapper.Tests
             // Performance should be reasonable (less than 1 second for 100 items)
             Assert.True(mappingTime < 1000, $"Mapping took {mappingTime}ms, which is too slow");
         }
+
+        [Fact]
+        public void Map_InPlaceUpdate_ShouldCopyValuesIntoExistingDestination()
+        {
+            // Arrange
+            var entity = new Entity1
+            {
+                Id = Guid.NewGuid(),
+                Entity8Id = Guid.NewGuid(),
+                Entity8 = new Entity8 { Id = Guid.NewGuid() },
+                Entity14Id = Guid.NewGuid(),
+                Entity14 = new Entity14 { Id = Guid.NewGuid() }
+            };
+
+            var existingDto = new EntityDTO1
+            {
+                Id = Guid.Empty,
+                Entity8Id = Guid.Empty,
+                Entity8 = new EntityDTO8 { Id = Guid.Empty },
+                Entity14Id = Guid.Empty,
+                Entity14 = new EntityDTO14 { Id = Guid.Empty }
+            };
+
+            // Act
+            Mapper.Map(entity, existingDto);
+
+            // Assert
+            Assert.Equal(entity.Id, existingDto.Id);
+            Assert.Equal(entity.Entity8Id, existingDto.Entity8Id);
+            Assert.NotNull(existingDto.Entity8);
+            Assert.Equal(entity.Entity8.Id, existingDto.Entity8.Id);
+            Assert.Equal(entity.Entity14Id, existingDto.Entity14Id);
+            Assert.NotNull(existingDto.Entity14);
+            Assert.Equal(entity.Entity14.Id, existingDto.Entity14.Id);
+        }
+
+        [Fact]
+        public void Map_InPlaceUpdate_ShouldPropagateNulls()
+        {
+            // Arrange: destination has values, source has null nested objects
+            var entity = new Entity1
+            {
+                Id = Guid.NewGuid(),
+                Entity8Id = Guid.NewGuid(),
+                Entity8 = null, // will null out destination
+                Entity14Id = Guid.NewGuid(),
+                Entity14 = null // will null out destination
+            };
+
+            var existingDto = new EntityDTO1
+            {
+                Id = Guid.Empty,
+                Entity8Id = Guid.Empty,
+                Entity8 = new EntityDTO8 { Id = Guid.NewGuid() },
+                Entity14Id = Guid.Empty,
+                Entity14 = new EntityDTO14 { Id = Guid.NewGuid() }
+            };
+
+            // Act
+            Mapper.Map(entity, existingDto);
+
+            // Assert: top-level IDs updated, nested objects set to null
+            Assert.Equal(entity.Id, existingDto.Id);
+            Assert.Equal(entity.Entity8Id, existingDto.Entity8Id);
+            Assert.Null(existingDto.Entity8);
+            Assert.Equal(entity.Entity14Id, existingDto.Entity14Id);
+            Assert.Null(existingDto.Entity14);
+        }
     }
 }
