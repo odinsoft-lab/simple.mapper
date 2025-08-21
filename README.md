@@ -19,14 +19,14 @@ dotnet add package Simple.AutoMapper
 There are two components:
 
 1) Mapper (simple, zero-config, reflection-based) — Public API
-- Map<TSource, TDestination>(TSource)
-- Map<TDestination>(object source)
-- Map<TSource, TDestination>(IEnumerable<TSource>)
-- Map<TSource, TDestination>(TSource source, TDestination destination) for in-place updates
+- `Map<TSource, TDestination>(TSource)`
+- `Map<TDestination>(object source)`
+- `Map<TSource, TDestination>(IEnumerable<TSource>)`
+- `Map<TSource, TDestination>(TSource source, TDestination destination)` for in-place updates
 - List sync helpers returning SyncResult for upsert/remove operations
 
 2) MappingEngine (compiled, configurable) — Internal mapping methods
-- CreateMap<TSource, TDestination>() for future configuration support (e.g., Ignore/ForMember capture)
+- `CreateMap<TSource, TDestination>()` for future configuration support (e.g., Ignore/ForMember capture)
 - Compiled mapping methods are internal and not intended to be called from application code
 
 ## Quick start — Mapping configuration (optional)
@@ -142,7 +142,7 @@ await db.SaveChangesAsync(cancellationToken);
 
 - Simple types, nullable simple types, enums, string, DateTime, Guid
 - Complex types (class) are mapped recursively
-- Collections: List<T> and arrays, plus common IEnumerable/ICollection/IList shapes
+ - Collections: `List<T>` and arrays, plus common `IEnumerable`/`ICollection`/`IList` shapes
 - Null-safe: null sources or members remain null on destination
 - Thread-safe caching for MappingEngine
 

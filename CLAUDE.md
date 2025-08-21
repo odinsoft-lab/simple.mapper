@@ -115,7 +115,7 @@ When modifying the mapping engine:
 3. **Expression trees are built considering**:
    - Simple types (primitives, strings, DateTime, etc.)
    - Complex nested objects (recursive mapping)
-   - Collections (List<T>, arrays, IEnumerable<T>)
+   - Collections (`List<T>`, arrays, `IEnumerable<T>`)
    - Nullable type handling
 
 ### Testing Structure
@@ -148,7 +148,7 @@ The `CompileMapper<TSource, TDestination>` method in `MappingEngine.cs` is the h
 The system recognizes three type categories:
 1. **Simple Types**: Primitives, enums, string, DateTime, Guid, and their nullable versions
 2. **Complex Types**: Classes that aren't simple or collections (mapped recursively)
-3. **Collection Types**: Arrays, List<T>, IList<T>, IEnumerable<T>, ICollection<T>
+3. **Collection Types**: Arrays, `List<T>`, `IList<T>`, `IEnumerable<T>`, `ICollection<T>`
 
 ## Target Frameworks
 
@@ -162,5 +162,5 @@ Tests target `net9.0` and use xUnit as the testing framework.
 
 1. Circular references: not supported (risk of stack overflow)
 2. Destination constraints: must have parameterless constructors (`new()`)
-3. Collections: Single-type-parameter collections supported (List<T>, arrays, common interfaces)
+3. Collections: Single-type-parameter collections supported (`List<T>`, arrays, common interfaces)
 4. Custom mapping: ForMember captured but not yet applied during expression compilation

@@ -17,7 +17,7 @@ A lean, fast object mapper for .NET with a simple public API (reflection-based) 
 - ForMember configuration is captured but not yet emitted in compiled mapping
 
 ## API Surface
-- Mapper: Map<TSource, TDestination>(TSource), Map<TDestination>(object), Map for collections, and in-place Map(source, destination)
+- Mapper: `Map<TSource, TDestination>(TSource)`, `Map<TDestination>(object)`, Map for collections, and in-place `Map(source, destination)`
 - Sync helpers return SyncResult { Added, Updated, Removed }
 
 ## Known Limitations
