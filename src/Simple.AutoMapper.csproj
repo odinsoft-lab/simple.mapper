@@ -1,24 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+        <!-- Target Framework -->
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<!-- Generate XML documentation for public APIs so consumers get IntelliSense in NuGet -->
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
 		<!-- Assembly Information -->
 		<AssemblyName>Simple.AutoMapper</AssemblyName>
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.5</Version>
-		<AssemblyVersion>1.0.5.0</AssemblyVersion>
-		<FileVersion>1.0.5.0</FileVersion>
+		<Version>1.0.6</Version>
+		<AssemblyVersion>1.0.6.0</AssemblyVersion>
+		<FileVersion>1.0.6.0</FileVersion>
 
 		<!-- Package Information -->
-		<IsPackable>true</IsPackable>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<PackageId>Simple.AutoMapper</PackageId>
 		<Authors>SEONGAHN LEE</Authors>
 		<Product>Simple.AutoMapper</Product>
@@ -33,12 +30,12 @@
 		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.5
- - Core mapper stabilized; fast reflection-based mapping with recursion for complex types
- - Multi-target: netstandard2.0, netstandard2.1, net8.0, net9.0
- - Collection mapping and list sync helpers (SyncResult)
- - Thread-safe caching and embedded symbols (snupkg)
- - Docs refreshed; known limits: no circular reference handling; ForMember captured but not emitted</PackageReleaseNotes>
+		<PackageReleaseNotes>v1.0.6
+ - Include XML docs in the NuGet package and improve public API documentation
+ - Strengthen cache behavior and tests; subsequent runs equal or faster than first
+ - Add in-place update sample and related tests
+ - General docs cleanup (README/ROADMAP/RELEASE)
+ - No breaking changes; targets unchanged: netstandard2.0, netstandard2.1, net8.0, net9.0</PackageReleaseNotes>
 
 		<!-- Repository Information -->
 		<RepositoryUrl>https://github.com/lisa3907/Simple.AutoMapper</RepositoryUrl>
@@ -51,7 +48,6 @@
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 
 		<!-- Suppress most warnings except critical ones -->
-		<!-- Suppress missing XML comment warnings until full coverage is achieved -->
 		<NoWarn>$(NoWarn);CS1998;CS0618;CS1591</NoWarn>
 
 		<!-- Build Settings -->
@@ -65,9 +61,6 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-		<!-- Ensure XML docs are included in the NuGet package build output -->
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.xml</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	</PropertyGroup>
 
 	<!-- Package Files -->
@@ -79,10 +72,9 @@
 		<Content Include="Simple.AutoMapper.ico" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>Mapper.Tests</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+    </ItemGroup>
 
 </Project>
