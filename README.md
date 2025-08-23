@@ -1,5 +1,11 @@
 # Simple.AutoMapper
 
+[![NuGet](https://img.shields.io/nuget/v/Simple.AutoMapper.svg)](https://www.nuget.org/packages/Simple.AutoMapper/)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-blue.svg)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![Downloads](https://img.shields.io/nuget/dt/Simple.AutoMapper.svg)](https://www.nuget.org/packages/Simple.AutoMapper/)
+
+
 High-performance object mapping for .NET. Public usage focuses on a simple reflection-based Mapper API. A compiled MappingEngine exists for internal use and configuration experiments.
 
 Note: This README reflects v1.0.5. See docs/RELEASE.md for details.
