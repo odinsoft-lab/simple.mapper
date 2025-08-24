@@ -102,6 +102,8 @@ ENV/
 ./CLAUD.local.md
 nul
 appsettings.Development.json
+*.trx
+PROMPTS.txt
 
 # Allow documentation release notes to be tracked
 !docs/releases/
