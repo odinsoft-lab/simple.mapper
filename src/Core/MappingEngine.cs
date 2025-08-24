@@ -285,7 +285,7 @@ namespace Simple.AutoMapper.Core
                             continue;
                         }
 
-                        // Complex types: guard circular refs and map recursively
+                        // Complex types: guard circular refs and map recursively, with cached reuse when preserving references
                         if (IsComplexType(projectedType) && IsComplexType(destProperty.PropertyType))
                         {
                             var valueVar = Expression.Variable(projectedType, "_mf");
@@ -301,8 +301,7 @@ namespace Simple.AutoMapper.Core
                                 Expression.Convert(valueVar, typeof(object)),
                                 Expression.Constant(nestedTypePair)
                             );
-                            var notCircular = Expression.Not(circularCheck);
-                            var canMap = Expression.AndAlso(nullCheck, notCircular);
+                            var preserveProp = Expression.Property(contextParam, nameof(MappingContext.PreserveReferences));
 
                             var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstanceWithContext), BindingFlags.NonPublic | BindingFlags.Instance)
                                 .MakeGenericMethod(projectedType, destProperty.PropertyType);
@@ -312,13 +311,27 @@ namespace Simple.AutoMapper.Core
                                 valueVar,
                                 contextParam
                             );
+                            // destination = (TDest)context.GetCachedDestination(value, typeof(TDest))
+                            var getCachedMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.GetCachedDestination));
+                            var getCachedCall = Expression.Call(
+                                contextParam,
+                                getCachedMethod,
+                                Expression.Convert(valueVar, typeof(object)),
+                                Expression.Constant(destProperty.PropertyType)
+                            );
+                            var cachedCast = Expression.Convert(getCachedCall, destProperty.PropertyType);
 
-                            var conditionalAssign = Expression.IfThen(
-                                canMap,
+                            // if (preserve && circular) { destination = cached; } else if (!circular) { destination = map(value); }
+                            var ifCircularAssignCached = Expression.IfThen(
+                                Expression.AndAlso(preserveProp, circularCheck),
+                                Expression.Assign(destinationValue, cachedCast)
+                            );
+                            var ifNotCircularMap = Expression.IfThen(
+                                Expression.AndAlso(nullCheck, Expression.Not(circularCheck)),
                                 Expression.Assign(destinationValue, mappedValue)
                             );
 
-                            var block = Expression.Block(new[] { valueVar }, assignValue, conditionalAssign);
+                            var block = Expression.Block(new[] { valueVar }, assignValue, ifCircularAssignCached, ifNotCircularMap);
                             expressions.Add(block);
                             continue;
                         }
@@ -362,7 +375,7 @@ namespace Simple.AutoMapper.Core
                         var convertedValue = Expression.Convert(sourceValue, destProperty.PropertyType);
                         expressions.Add(Expression.Assign(destinationValue, convertedValue));
                     }
-                    // Handle complex types
+                    // Handle complex types (with circular ref guard and cached reuse when preserving references)
                     else if (IsComplexType(sourceProperty.PropertyType) && IsComplexType(destProperty.PropertyType))
                     {
                         var nestedTypePair = new TypePair(sourceProperty.PropertyType, destProperty.PropertyType);
@@ -375,9 +388,7 @@ namespace Simple.AutoMapper.Core
                             Expression.Convert(sourceValue, typeof(object)),
                             Expression.Constant(nestedTypePair)
                         );
-
-                        var notCircular = Expression.Not(circularCheck);
-                        var canMap = Expression.AndAlso(nullCheck, notCircular);
+                        var preserveProp = Expression.Property(contextParam, nameof(MappingContext.PreserveReferences));
 
                         var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstanceWithContext), BindingFlags.NonPublic | BindingFlags.Instance)
                             .MakeGenericMethod(sourceProperty.PropertyType, destProperty.PropertyType);
@@ -388,13 +399,27 @@ namespace Simple.AutoMapper.Core
                             sourceValue,
                             contextParam
                         );
+                        // destination = (TDest)context.GetCachedDestination(sourceValue, typeof(TDest))
+                        var getCachedMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.GetCachedDestination));
+                        var getCachedCall = Expression.Call(
+                            contextParam,
+                            getCachedMethod,
+                            Expression.Convert(sourceValue, typeof(object)),
+                            Expression.Constant(destProperty.PropertyType)
+                        );
+                        var cachedCast = Expression.Convert(getCachedCall, destProperty.PropertyType);
 
-                        var conditionalAssign = Expression.IfThen(
-                            canMap,
+                        var ifCircularAssignCached = Expression.IfThen(
+                            Expression.AndAlso(preserveProp, circularCheck),
+                            Expression.Assign(destinationValue, cachedCast)
+                        );
+                        var ifNotCircularMap = Expression.IfThen(
+                            Expression.AndAlso(nullCheck, Expression.Not(circularCheck)),
                             Expression.Assign(destinationValue, mappedValue)
                         );
 
-                        expressions.Add(conditionalAssign);
+                        expressions.Add(ifCircularAssignCached);
+                        expressions.Add(ifNotCircularMap);
                     }
                     // Handle collections
                     else if (IsCollectionType(sourceProperty.PropertyType) && IsCollectionType(destProperty.PropertyType))

@@ -33,13 +33,12 @@ Implemented (MVP):
 - Expression-compiled mappers with caching per TypePair
 - ReverseMap() — basic reverse configuration (no per-member reverse rules)
 - Ignore(d => d.Member) — honored in compiled mapping
-- Basic circular reference guard and destination instance caching
+- Circular-reference guard and destination instance caching gated by PreserveReferences (opt-in)
 - Public XML docs added for exposed APIs
 
 Partially implemented:
-- ForMember(...).MapFrom(...) — stored in config but not applied in compiled mapping yet
-- PreserveReferences() — flag and caching exist; behavior is simplistic
-- MaxDepth(...) — tracked superficially; not decremented/incremented in all paths; one test skipped
+- ForMember(...).MapFrom(...) — stored in config; compiled mapping path incomplete (some tests skipped)
+- MaxDepth(...) — tracked superficially; enforcement incomplete; test skipped
 - Collections — List<T> fully; arrays via reflection mapping; no HashSet/Dictionary/ICollection special handling
 - Null handling — simple propagation; no NullSubstitute/Condition
 
@@ -56,18 +55,19 @@ Not implemented (out of scope for MVP, candidates for future):
 - Global options (AllowNullCollections, AllowNullDestinationValues, etc.)
 
 Test status highlights:
-- 27 passing, 2 skipped (MaxDepth guard and ReverseMap + Ignore semantics pending)
+- 30 passing, 5 skipped
+	- Skipped: MaxDepth guard, ForMember(MapFrom) [simple property], ForMember(MapFrom) [computed expression], ForMember(MapFrom) [collection projection], ReverseMap + Ignore semantics
 
 Gap summary and priorities:
 P1) Wire up ForMember.MapFrom in compiled mapping (highest user value)
-P1) Strengthen PreserveReferences/MaxDepth (fix skipped tests)
+P1) MaxDepth enforcement (per type-pair enter/exit tracking) and unskip test
 P1) Collections minimal expansion (ensure IEnumerable<T>→List<T>, arrays; keep HashSet/Dictionary for later)
-P2) Validation API (lightweight AssertConfiguration) and DI helpers (optional)
 P2) ReverseMap + Ignore semantics (document policy and tests)
+P2) Validation API (lightweight AssertConfiguration) and DI helpers (optional)
 
 ## Must-do (this sprint) — essentials only
 - [ ] Implement ForMember.MapFrom in compiled pipeline (property-level mapping only)
-- [ ] PreserveReferences/MaxDepth: implement basic enter/exit depth tracking and reuse cached instances; unskip MaxDepth test
+- [ ] MaxDepth: implement correct per-type-pair depth tracking and guard; unskip test
 - [ ] Collections (minimal): validate IEnumerable<T>→List<T> and arrays; add unit tests for null/empty and simple/complex elements
 - [ ] Benchmarks: Create BenchmarkDotNet project (tests/Benchmarks); move perf assertions out of xUnit
 - [ ] Docs: Reflect MVP scope/limitations in README and releases
@@ -79,6 +79,8 @@ P2) ReverseMap + Ignore semantics (document policy and tests)
 - [x] Fix Markdown generic rendering across docs (wrap `List<T>`, `Map<T>`, etc. in backticks)
 - [ ] Document performance test tolerances/flakiness and alternatives (BenchmarkDotNet)
 - [x] Update sample: add in-place update usage and wire into Program.cs
+- [x] PreserveReferences behavior corrections: gate cache/circular checks and depth by flag (v1.0.7)
+- [x] Release notes: add `docs/releases/v1.0.7.md`
 
 ## Backlog (short-term)
 - [ ] DI integration draft: IServiceCollection extensions (singleton engine)

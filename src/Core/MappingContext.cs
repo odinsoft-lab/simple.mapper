@@ -67,6 +67,12 @@ namespace Simple.AutoMapper.Core
             if (source == null)
                 return false;
 
+            // When reference preservation is disabled, bypass caching/checks entirely
+            if (!_preserveReferences)
+            {
+                return false;
+            }
+
             // Always check the cache to detect circular references
             var cacheKey = new ContextCacheKey(source, typePair.DestinationType);
             if (_instanceCache.ContainsKey(cacheKey))
@@ -85,7 +91,10 @@ namespace Simple.AutoMapper.Core
 
             // Register this mapping to track circular references
             _instanceCache[cacheKey] = null; // Placeholder until actual mapping completes
-            _currentDepth++; // Increment depth when entering a nested mapping
+            if (_preserveReferences)
+            {
+                _currentDepth++; // Increment depth only when preserving references
+            }
 
             return false;
         }
@@ -102,6 +111,10 @@ namespace Simple.AutoMapper.Core
         /// <param name="destination">The destination instance to cache.</param>
         public void CacheDestination(object source, Type destinationType, object destination)
         {
+            // When reference preservation is disabled, do not cache
+            if (!_preserveReferences)
+                return;
+
             if (source != null && destination != null)
             {
                 var cacheKey = new ContextCacheKey(source, destinationType);
@@ -121,6 +134,10 @@ namespace Simple.AutoMapper.Core
         public object GetCachedDestination(object source, Type destinationType)
         {
             if (source == null)
+                return null;
+
+            // When reference preservation is disabled, no cached destination exists
+            if (!_preserveReferences)
                 return null;
 
             var cacheKey = new ContextCacheKey(source, destinationType);
