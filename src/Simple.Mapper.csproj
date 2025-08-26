@@ -26,7 +26,7 @@
 
 		<!-- Package Settings -->
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/odinsoft-lab/Simple.AutoMapper</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/odinsoft-lab/simple.mapper</PackageProjectUrl>
 		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
@@ -38,7 +38,7 @@
  - No breaking changes; targets unchanged: netstandard2.0, netstandard2.1, net8.0, net9.0</PackageReleaseNotes>
 
 		<!-- Repository Information -->
-		<RepositoryUrl>https://github.com/odinsoft-lab/Simple.AutoMapper</RepositoryUrl>
+		<RepositoryUrl>https://github.com/odinsoft-lab/simple.mapper</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 
@@ -55,7 +55,7 @@
 		<Deterministic>true</Deterministic>
 		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-		<ApplicationIcon>Simple.AutoMapper.ico</ApplicationIcon>
+		<ApplicationIcon>Simple.Mapper.ico</ApplicationIcon>
 
 		<!-- Debugging and Symbols -->
 		<DebugType>embedded</DebugType>
@@ -68,9 +68,9 @@
 	<ItemGroup>
 		<None Include="..\README.md" Pack="true" PackagePath="\" />
 		<None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
-		<None Include="..\docs\logo-files\Simple.AutoMapper.png" Pack="true" PackagePath="\" />
+		<None Include="..\docs\logo-files\Simple.Mapper.png" Pack="true" PackagePath="\" />
 		<Content Include="..\LICENSE.md" Link="LICENSE.md" />
-		<Content Include="Simple.AutoMapper.ico" />
+		<Content Include="Simple.Mapper.ico" />
 	</ItemGroup>
 
     <ItemGroup>

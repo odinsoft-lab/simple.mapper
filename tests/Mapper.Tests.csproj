@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Simple.AutoMapper.csproj" />
+    <ProjectReference Include="..\src\Simple.Mapper.csproj" />
   </ItemGroup>
 
   <ItemGroup>

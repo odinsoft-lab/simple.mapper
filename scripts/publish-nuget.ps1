@@ -18,7 +18,7 @@ param(
 # Configuration
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
-$ProjectPath = Join-Path $RootDir "src\Simple.AutoMapper.csproj"
+$ProjectPath = Join-Path $RootDir "src\simple.mapper.csproj"
 $Configuration = "Release"
 $OutputDirectory = Join-Path $RootDir "src\bin\Release"
 $NuGetSource = "https://api.nuget.org/v3/index.json"

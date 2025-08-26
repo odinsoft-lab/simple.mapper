@@ -39,7 +39,7 @@ dotnet test
 dotnet test --logger "console;verbosity=detailed"
 
 # Run specific test project
-dotnet test tests/Mapper.Tests/Mapper.Tests.csproj
+dotnet test tests/Mapper.Tests.csproj
 
 # Run tests with code coverage
 dotnet test --collect:"XPlat Code Coverage"

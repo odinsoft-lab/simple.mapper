@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Simple.AutoMapper.Core;
+using System;
 using System.Collections.Generic;
-using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Examples
 {

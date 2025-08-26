@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.AutoMapper", "src\Simple.AutoMapper.csproj", "{573DC299-1F3A-04B2-C3B1-34965CCAD4D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Mapper", "src\Simple.Mapper.csproj", "{573DC299-1F3A-04B2-C3B1-34965CCAD4D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{2D6C1C5E-1E0E-4E2C-9D46-9C507F0C7B6E}"
 EndProject
@@ -17,6 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapper.Tests", "tests\Mappe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C8D5274F-AC00-46C7-1F8D-E88E81087A52}"
 	ProjectSection(SolutionItems) = preProject
+		docs\CONTRIBUTING.md = docs\CONTRIBUTING.md
 		docs\DEPLOYMENT.md = docs\DEPLOYMENT.md
 		docs\ROADMAP.md = docs\ROADMAP.md
 		docs\TASK.md = docs\TASK.md

@@ -51,7 +51,7 @@ If you prefer manual commands or the scripts don't work in your environment:
 dotnet clean
 dotnet restore
 dotnet build -c Release
-dotnet test tests/Mapper.Tests.csproj -c Release
+dotnet test tests/Simple.AutoMapper.Tests.csproj -c Release
 dotnet pack src/Simple.AutoMapper.csproj -c Release -o ./.nupkg
 
 # Upload to NuGet
