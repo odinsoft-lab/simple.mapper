@@ -182,4 +182,4 @@ See LICENSE.md.
 
 ---
 
-**Built with ❤️ by the ODINSOFT Team** | [⭐ Star us on GitHub](https://github.com/lisa3907/Simple.AutoMapper)
+**Built with ❤️ by the ODINSOFT Team** | [⭐ Star us on GitHub](https://github.com/odinsoft-lab/Simple.AutoMapper)
