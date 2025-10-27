@@ -10,12 +10,12 @@
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.6</Version>
-		<AssemblyVersion>1.0.6.0</AssemblyVersion>
-		<FileVersion>1.0.6.0</FileVersion>
+		<Version>1.0.7</Version>
+		<AssemblyVersion>1.0.7.0</AssemblyVersion>
+		<FileVersion>1.0.7.0</FileVersion>
 
 		<!-- Package Information -->
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>Simple.AutoMapper</PackageId>
 		<Authors>SEONGAHN LEE</Authors>
 		<Product>Simple.AutoMapper</Product>
@@ -27,15 +27,17 @@
 		<!-- Package Settings -->
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/odinsoft-lab/simple.mapper</PackageProjectUrl>
-		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
+		<PackageIcon>Simple.Mapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.6
- - Include XML docs in the NuGet package and improve public API documentation
- - Strengthen cache behavior and tests; subsequent runs equal or faster than first
- - Add in-place update sample and related tests
- - General docs cleanup (README/ROADMAP/RELEASE)
- - No breaking changes; targets unchanged: netstandard2.0, netstandard2.1, net8.0, net9.0</PackageReleaseNotes>
+		<PackageReleaseNotes>v1.0.8
+ - Add IServiceCollection.AddSimpleMapper() extension method for DI integration
+ - Add MapperConfiguration class for fluent profile configuration
+ - Support AddSimpleMapper(cfg => cfg.AddProfile&lt;T&gt;()) pattern
+ - Support assembly scanning: AddSimpleMapper(typeof(Profile).Assembly)
+ - Available for netstandard2.1, net8.0, net9.0 (DI features)
+ - All existing v1.0.7 features remain compatible
+ - Targets: netstandard2.0, netstandard2.1, net8.0, net9.0</PackageReleaseNotes>
 
 		<!-- Repository Information -->
 		<RepositoryUrl>https://github.com/odinsoft-lab/simple.mapper</RepositoryUrl>
@@ -76,6 +78,11 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+    </ItemGroup>
+
+    <!-- DI support for netstandard2.1+ and .NET 8.0+ -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
     </ItemGroup>
 
 </Project>

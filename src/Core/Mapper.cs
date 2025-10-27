@@ -79,6 +79,30 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
+        /// Adds a profile containing mapping configurations.
+        /// Creates an instance of <typeparamref name="TProfile"/> and executes its configuration.
+        /// </summary>
+        /// <typeparam name="TProfile">Profile type that inherits from <see cref="Profile"/>.</typeparam>
+        public static void AddProfile<TProfile>() where TProfile : Profile, new()
+        {
+            var profile = new TProfile();
+            profile.ExecuteConfigure();
+        }
+
+        /// <summary>
+        /// Adds a profile instance containing mapping configurations.
+        /// Executes the configuration of the provided profile instance.
+        /// </summary>
+        /// <param name="profile">Profile instance to add.</param>
+        public static void AddProfile(Profile profile)
+        {
+            if (profile == null)
+                throw new System.ArgumentNullException(nameof(profile));
+
+            profile.ExecuteConfigure();
+        }
+
+        /// <summary>
         /// Resets the underlying singleton state. Intended for tests only.
         /// </summary>
         internal static MappingEngine Reset()
