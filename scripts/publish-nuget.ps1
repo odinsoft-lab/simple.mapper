@@ -179,21 +179,47 @@ if ($DryRun) {
     
     Write-Host ""
     Write-Info "Publishing package to NuGet.org..."
-    
+
     $pushCommand = "dotnet nuget push `"$packagePath`" --api-key `"$ApiKey`" --source `"$NuGetSource`" --skip-duplicate"
     Write-Host "  Command: dotnet nuget push [package] --api-key [HIDDEN] --source $NuGetSource --skip-duplicate"
-    
-    $pushResult = Invoke-Expression $pushCommand
-    if ($LASTEXITCODE -ne 0) {
+
+    # Capture both stdout and stderr
+    $pushOutput = & dotnet nuget push "$packagePath" --api-key "$ApiKey" --source "$NuGetSource" --skip-duplicate 2>&1
+    $exitCode = $LASTEXITCODE
+
+    # Output the result
+    $pushOutput | ForEach-Object { Write-Host $_ }
+
+    # Check for success indicators in output
+    $outputString = $pushOutput | Out-String
+    $isSuccess = $false
+
+    if ($exitCode -eq 0) {
+        $isSuccess = $true
+    } elseif ($outputString -match "Your package was pushed" -or
+              $outputString -match "已推送包" -or
+              $outputString -match "conflict.*409" -and $outputString -match "skip-duplicate") {
+        # Success cases:
+        # 1. Exit code 0
+        # 2. Success message present
+        # 3. 409 conflict with skip-duplicate (package already exists, which is OK)
+        $isSuccess = $true
+        Write-Warning "Package already exists on NuGet.org (skipped due to --skip-duplicate)"
+    }
+
+    if (-not $isSuccess) {
         Write-Error "Package publication failed!"
+        Write-Host ""
+        Write-Host "Error output:"
+        Write-Host $outputString
         Write-Host ""
         Write-Host "Common issues:"
         Write-Host "  - Invalid API key"
-        Write-Host "  - Package version already exists"
         Write-Host "  - Network connection issues"
+        Write-Host "  - NuGet.org service temporarily unavailable"
         exit 1
     }
-    
+
     Write-Host ""
     Write-Success "========================================="
     Write-Success "  Package published successfully!"

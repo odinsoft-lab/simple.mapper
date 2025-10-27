@@ -43,7 +43,7 @@ Partially implemented:
 - Null handling — simple propagation; no NullSubstitute/Condition
 
 Not implemented (out of scope for MVP, candidates for future):
-- Profiles/MapperConfiguration/IMapper abstraction and DI integration
+- Profiles/MapperConfiguration/ISimpleMapper abstraction and DI integration
 - AssertConfigurationIsValid and config validation
 - BeforeMap/AfterMap hooks, ForAllMembers
 - Include/IncludeBase and inheritance mapping

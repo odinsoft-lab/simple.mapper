@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using Simple.AutoMapper.Interfaces;
+using Simple.AutoMapper.Services;
 
 #if NET8_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,9 @@ namespace Simple.AutoMapper.DependencyInjection
 
             var config = new MapperConfiguration();
             configure(config);
+
+            // Register ISimpleMapper as singleton for DI
+            services.AddSingleton<ISimpleMapper, SimpleMapper>();
 
             return services;
         }
@@ -59,6 +64,9 @@ namespace Simple.AutoMapper.DependencyInjection
                     Core.Mapper.AddProfile(profile);
                 }
             }
+
+            // Register ISimpleMapper as singleton for DI
+            services.AddSingleton<ISimpleMapper, SimpleMapper>();
 
             return services;
         }

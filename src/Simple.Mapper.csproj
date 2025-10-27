@@ -11,8 +11,8 @@
 
 		<!-- Versioning -->
 		<Version>1.0.7</Version>
-		<AssemblyVersion>1.0.7.0</AssemblyVersion>
-		<FileVersion>1.0.7.0</FileVersion>
+		<AssemblyVersion>1.0.7.7</AssemblyVersion>
+		<FileVersion>1.0.7.7</FileVersion>
 
 		<!-- Package Information -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,9 +30,11 @@
 		<PackageIcon>Simple.Mapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.8
- - Add IServiceCollection.AddSimpleMapper() extension method for DI integration
+		<PackageReleaseNotes>v1.0.7
+ - Add ISimpleMapper interface and SimpleMapper for dependency injection
+ - Add IServiceCollection.AddSimpleMapper() extension method - automatically registers ISimpleMapper as singleton
  - Add MapperConfiguration class for fluent profile configuration
+ - Support constructor injection: inject ISimpleMapper into controllers/services
  - Support AddSimpleMapper(cfg => cfg.AddProfile&lt;T&gt;()) pattern
  - Support assembly scanning: AddSimpleMapper(typeof(Profile).Assembly)
  - Available for netstandard2.1, net8.0, net9.0 (DI features)
