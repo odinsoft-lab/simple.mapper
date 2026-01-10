@@ -41,9 +41,10 @@ namespace Simple.AutoMapper.Core
 
         /// <summary>
         /// Maps a single object to <typeparamref name="TDestination"/> by inferring the source type from the object instance.
+        /// Also supports collection mapping when source is IEnumerable and TDestination is List&lt;T&gt;.
         /// </summary>
-        /// <param name="source">The source object instance.</param>
-        /// <typeparam name="TDestination">Destination type to create and map to.</typeparam>
+        /// <param name="source">The source object instance or collection.</param>
+        /// <typeparam name="TDestination">Destination type to create and map to. Can be a single type or List&lt;T&gt;.</typeparam>
         /// <returns>New destination instance with mapped values, or default if source is null.</returns>
         public TDestination MapPropertiesReflection<TDestination>(object source)
             where TDestination : new()
@@ -51,6 +52,36 @@ namespace Simple.AutoMapper.Core
             if (source == null)
                 return default(TDestination);
 
+            var destinationType = typeof(TDestination);
+
+            // Check if TDestination is List<T> and source is a collection
+            if (destinationType.IsGenericType &&
+                destinationType.GetGenericTypeDefinition() == typeof(List<>) &&
+                source is System.Collections.IEnumerable sourceEnumerable &&
+                !(source is string))
+            {
+                var elementType = destinationType.GetGenericArguments()[0];
+                var result = new TDestination();
+                var list = result as System.Collections.IList;
+
+                foreach (var item in sourceEnumerable)
+                {
+                    if (item == null)
+                    {
+                        list.Add(null);
+                    }
+                    else
+                    {
+                        var mappedItem = Activator.CreateInstance(elementType);
+                        MapPropertiesReflection(item, mappedItem);
+                        list.Add(mappedItem);
+                    }
+                }
+
+                return result;
+            }
+
+            // Single object mapping
             var destination = new TDestination();
             MapPropertiesReflection(source, destination);
             return destination;
@@ -382,12 +413,18 @@ namespace Simple.AutoMapper.Core
                         var nullCheck = Expression.NotEqual(sourceValue, Expression.Constant(null, sourceProperty.PropertyType));
 
                         var isCircularMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.IsCircularReference));
-                        var circularCheck = Expression.Call(
+                        var circularCheckCall = Expression.Call(
                             contextParam,
                             isCircularMethod,
                             Expression.Convert(sourceValue, typeof(object)),
                             Expression.Constant(nestedTypePair)
                         );
+
+                        // Store circularCheck result in a variable to avoid calling IsCircularReference twice
+                        // (which would cause the second call to return true due to cache registration in first call)
+                        var circularVar = Expression.Variable(typeof(bool), "isCircular");
+                        var assignCircular = Expression.Assign(circularVar, circularCheckCall);
+
                         var preserveProp = Expression.Property(contextParam, nameof(MappingContext.PreserveReferences));
 
                         var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstanceWithContext), BindingFlags.NonPublic | BindingFlags.Instance)
@@ -410,16 +447,22 @@ namespace Simple.AutoMapper.Core
                         var cachedCast = Expression.Convert(getCachedCall, destProperty.PropertyType);
 
                         var ifCircularAssignCached = Expression.IfThen(
-                            Expression.AndAlso(preserveProp, circularCheck),
+                            Expression.AndAlso(preserveProp, circularVar),
                             Expression.Assign(destinationValue, cachedCast)
                         );
                         var ifNotCircularMap = Expression.IfThen(
-                            Expression.AndAlso(nullCheck, Expression.Not(circularCheck)),
+                            Expression.AndAlso(nullCheck, Expression.Not(circularVar)),
                             Expression.Assign(destinationValue, mappedValue)
                         );
 
-                        expressions.Add(ifCircularAssignCached);
-                        expressions.Add(ifNotCircularMap);
+                        // Use Block to define variable scope and ensure IsCircularReference is called only once
+                        var complexTypeBlock = Expression.Block(
+                            new[] { circularVar },
+                            assignCircular,
+                            ifCircularAssignCached,
+                            ifNotCircularMap
+                        );
+                        expressions.Add(complexTypeBlock);
                     }
                     // Handle collections
                     else if (IsCollectionType(sourceProperty.PropertyType) && IsCollectionType(destProperty.PropertyType))

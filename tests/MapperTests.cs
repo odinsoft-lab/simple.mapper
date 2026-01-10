@@ -4,6 +4,7 @@ using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Tests
 {
+    [Collection("Mapper Tests")]
     public class MapperTests
     {
         [Fact]
@@ -334,6 +335,95 @@ namespace Simple.AutoMapper.Tests
             Assert.Null(existingDto.Entity8);
             Assert.Equal(entity.Entity14Id, existingDto.Entity14Id);
             Assert.Null(existingDto.Entity14);
+        }
+
+        [Fact]
+        public void MapListInferred_WithSingleTypeParameter_ShouldMapCollection()
+        {
+            // Arrange - Mapper.Map<List<TDestination>>(entities) 형태 테스트
+            var entities = new List<Entity17>
+            {
+                new Entity17 { Id = Guid.NewGuid() },
+                new Entity17 { Id = Guid.NewGuid() },
+                new Entity17 { Id = Guid.NewGuid() }
+            };
+
+            // Act - 소스 타입을 추론하여 매핑
+            var dtos = Mapper.Map<List<EntityDTO17>>(entities);
+
+            // Assert
+            Assert.NotNull(dtos);
+            Assert.Equal(entities.Count, dtos.Count);
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                Assert.Equal(entities[i].Id, dtos[i].Id);
+            }
+        }
+
+        [Fact]
+        public void MapListInferred_WithEmptyList_ShouldReturnEmptyList()
+        {
+            // Arrange
+            var entities = new List<Entity17>();
+
+            // Act
+            var dtos = Mapper.Map<List<EntityDTO17>>(entities);
+
+            // Assert
+            Assert.NotNull(dtos);
+            Assert.Empty(dtos);
+        }
+
+        [Fact]
+        public void MapListInferred_WithNullList_ShouldReturnNull()
+        {
+            // Arrange
+            List<Entity17> entities = null;
+
+            // Act
+            var dtos = Mapper.Map<List<EntityDTO17>>(entities);
+
+            // Assert
+            Assert.Null(dtos);
+        }
+
+        [Fact]
+        public void MapListInferred_WithComplexEntities_ShouldMapNestedProperties()
+        {
+            // Arrange
+            var entities = new List<Entity1>
+            {
+                new Entity1
+                {
+                    Id = Guid.NewGuid(),
+                    Entity8Id = Guid.NewGuid(),
+                    Entity8 = new Entity8 { Id = Guid.NewGuid() }
+                },
+                new Entity1
+                {
+                    Id = Guid.NewGuid(),
+                    Entity14Id = Guid.NewGuid(),
+                    Entity14 = new Entity14 { Id = Guid.NewGuid() }
+                }
+            };
+
+            // Act
+            var dtos = Mapper.Map<List<EntityDTO1>>(entities);
+
+            // Assert
+            Assert.NotNull(dtos);
+            Assert.Equal(2, dtos.Count);
+
+            Assert.Equal(entities[0].Id, dtos[0].Id);
+            Assert.Equal(entities[0].Entity8Id, dtos[0].Entity8Id);
+            Assert.NotNull(dtos[0].Entity8);
+            Assert.Equal(entities[0].Entity8.Id, dtos[0].Entity8.Id);
+
+            Assert.Equal(entities[1].Id, dtos[1].Id);
+            Assert.Equal(entities[1].Entity14Id, dtos[1].Entity14Id);
+            Assert.NotNull(dtos[1].Entity14);
+            Assert.Equal(entities[1].Entity14.Id, dtos[1].Entity14.Id);
         }
     }
 }

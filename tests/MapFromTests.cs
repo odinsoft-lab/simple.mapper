@@ -2,6 +2,7 @@ using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Tests;
 
+[Collection("Mapper Tests")]
 public class MapFromTests
 {
     private class Person
@@ -33,7 +34,7 @@ public class MapFromTests
         public List<PersonDto> Members { get; set; }
     }
 
-    [Fact(Skip = "MapFrom simple assignment under investigation")]
+    [Fact]
     public void MapFrom_SimpleProperty_MapsFromDifferentSourceProperty()
     {
         var engine = Mapper.Reset();
@@ -46,7 +47,7 @@ public class MapFromTests
         Assert.Equal("John", dto.Name);
     }
 
-    [Fact(Skip = "MapFrom computed assignment under investigation")]
+    [Fact]
     public void MapFrom_Expression_ComputedValue_IsAssigned()
     {
         var engine = Mapper.Reset();
@@ -100,7 +101,7 @@ public class MapFromTests
         Assert.Null(dto.Name);
     }
 
-    [Fact(Skip = "MapFrom collection projection under investigation")]
+    [Fact]
     public void MapFrom_Collections_MinimalMapping_Works()
     {
         var engine = Mapper.Reset();

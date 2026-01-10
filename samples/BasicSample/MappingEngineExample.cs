@@ -134,34 +134,46 @@ namespace Simple.AutoMapper.Examples
             // Create a list of entities
             var userEntities = new List<UserEntity>
             {
-                new UserEntity 
-                { 
-                    Id = 1, 
-                    FirstName = "Alice", 
+                new UserEntity
+                {
+                    Id = 1,
+                    FirstName = "Alice",
                     LastName = "Johnson",
                     BirthDate = DateTime.Now.AddYears(-30)
                 },
-                new UserEntity 
-                { 
-                    Id = 2, 
-                    FirstName = "Bob", 
+                new UserEntity
+                {
+                    Id = 2,
+                    FirstName = "Bob",
                     LastName = "Wilson",
                     BirthDate = DateTime.Now.AddYears(-25)
                 },
-                new UserEntity 
-                { 
-                    Id = 3, 
-                    FirstName = "Charlie", 
+                new UserEntity
+                {
+                    Id = 3,
+                    FirstName = "Charlie",
                     LastName = "Brown",
                     BirthDate = DateTime.Now.AddYears(-35)
                 }
             };
 
-            // Map the entire list
+            // Method 1: Map with two type parameters (explicit source and destination types)
+            Console.WriteLine("=== Method 1: Mapper.Map<TSource, TDestination>(list) ===");
             var userDtos = Mapper.Map<UserEntity, UserDTO>(userEntities);
 
             Console.WriteLine($"Mapped {userDtos.Count} users");
             foreach (var dto in userDtos)
+            {
+                Console.WriteLine($"- {dto.FirstName} {dto.LastName}");
+            }
+
+            // Method 2: Map with single type parameter (infer source type from collection)
+            // This is equivalent to: Mapper.Map<UserEntity, UserDTO>(userEntities)
+            Console.WriteLine("\n=== Method 2: Mapper.Map<List<TDestination>>(list) ===");
+            var userDtos2 = Mapper.Map<List<UserDTO>>(userEntities);
+
+            Console.WriteLine($"Mapped {userDtos2.Count} users (using inferred source type)");
+            foreach (var dto in userDtos2)
             {
                 Console.WriteLine($"- {dto.FirstName} {dto.LastName}");
             }

@@ -6,6 +6,7 @@ using Simple.AutoMapper.Core;
 
 namespace Simple.AutoMapper.Tests
 {
+    [Collection("Mapper Tests")]
     public class MappingEngineTests
     {
         private MappingEngine CreateConfiguredEngine()
@@ -381,7 +382,7 @@ namespace Simple.AutoMapper.Tests
             Assert.Equal(dto.Entity8.Id, reversedEntity.Entity8.Id);
         }
 
-        [Fact(Skip = "Ignore functionality needs to be fixed first")]
+        [Fact]
         public void ReverseMap_WithIgnoredProperties_ShouldNotReverseIgnores()
         {
             // Arrange

@@ -4,6 +4,7 @@ using Simple.AutoMapper.Tests.Models.DTO;
 
 namespace Simple.AutoMapper.Tests
 {
+    [Collection("Mapper Tests")]
     public class CircularReferenceTests
     {
         [Fact]
@@ -106,10 +107,11 @@ namespace Simple.AutoMapper.Tests
             );
         }
 
-    // Local models for non-preserving reference reuse test
-    private class Child { public Guid Id { get; set; } }
-    private class Parent { public Child L { get; set; } public Child R { get; set; } }
-    private class ChildDto { public Guid Id { get; set; } }
-    private class ParentDto { public ChildDto L { get; set; } public ChildDto R { get; set; } }
     }
+
+    // Local models for non-preserving reference reuse test - must be internal for Expression.New() to work
+    internal class Child { public Guid Id { get; set; } }
+    internal class Parent { public Child L { get; set; } public Child R { get; set; } }
+    internal class ChildDto { public Guid Id { get; set; } }
+    internal class ParentDto { public ChildDto L { get; set; } public ChildDto R { get; set; } }
 }

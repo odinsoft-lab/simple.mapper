@@ -13,7 +13,7 @@ Note: This README reflects v1.0.5. See docs/RELEASE.md for details.
 ## Installation
 
 - NuGet package: Simple.AutoMapper
-- Target Frameworks: netstandard2.0, netstandard2.1, net8.0, net9.0
+- Target Frameworks: netstandard2.0, netstandard2.1, net8.0, net9.0, net10.0
 
 ```powershell
 # PowerShell (Windows)
