@@ -218,8 +218,38 @@ namespace Simple.AutoMapper.Core
 
             var expressions = new List<Expression>();
 
-            // Create new instance: var destination = new TDestination();
-            expressions.Add(Expression.Assign(destinationVar, Expression.New(typeof(TDestination))));
+            // Get mapping configuration if exists (must be before destination creation for ConstructUsing)
+            IMappingExpression config = null;
+            Delegate beforeMapAction = null;
+            Delegate afterMapAction = null;
+            Delegate constructUsingFunc = null;
+            if (_mappingExpressions.TryGetValue(typePair, out var mappingExpression))
+            {
+                config = mappingExpression;
+                // Get BeforeMap/AfterMap/ConstructUsing via reflection
+                var configType = mappingExpression.GetType();
+                var beforeMapProp = configType.GetProperty("BeforeMapAction");
+                var afterMapProp = configType.GetProperty("AfterMapAction");
+                var constructUsingProp = configType.GetProperty("ConstructUsingFunc");
+                beforeMapAction = beforeMapProp?.GetValue(mappingExpression) as Delegate;
+                afterMapAction = afterMapProp?.GetValue(mappingExpression) as Delegate;
+                constructUsingFunc = constructUsingProp?.GetValue(mappingExpression) as Delegate;
+            }
+
+            // Create destination instance using ConstructUsing or default constructor
+            if (constructUsingFunc != null)
+            {
+                var constructInvoke = Expression.Invoke(
+                    Expression.Constant(constructUsingFunc),
+                    sourceParam
+                );
+                expressions.Add(Expression.Assign(destinationVar, constructInvoke));
+            }
+            else
+            {
+                // Create new instance: var destination = new TDestination();
+                expressions.Add(Expression.Assign(destinationVar, Expression.New(typeof(TDestination))));
+            }
 
             // Cache the destination immediately to handle circular references
             // context.CacheDestination(source, typeof(TDestination), destination);
@@ -233,11 +263,15 @@ namespace Simple.AutoMapper.Core
             );
             expressions.Add(cacheCall);
 
-            // Get mapping configuration if exists
-            IMappingExpression config = null;
-            if (_mappingExpressions.TryGetValue(typePair, out var mappingExpression))
+            // Execute BeforeMap if configured
+            if (beforeMapAction != null)
             {
-                config = mappingExpression;
+                var beforeMapInvoke = Expression.Invoke(
+                    Expression.Constant(beforeMapAction),
+                    sourceParam,
+                    destinationVar
+                );
+                expressions.Add(beforeMapInvoke);
             }
 
             // Map properties
@@ -257,17 +291,25 @@ namespace Simple.AutoMapper.Core
                 if (config?.IsPropertyIgnored(destProperty.Name) == true)
                     continue;
 
-                // Custom mapping via ForMember(MapFrom/Ignore)
+                // Custom mapping via ForMember(MapFrom/Ignore/Condition/NullSubstitute)
                 var customConfig = config?.GetCustomMapping(destProperty.Name);
                 if (customConfig != null)
                 {
                     var cfgType = customConfig.GetType();
                     var isIgnoredProp = cfgType.GetProperty("IsIgnored");
                     var sourceExprProp = cfgType.GetProperty("SourceExpression");
+                    var conditionFuncProp = cfgType.GetProperty("ConditionFunc");
+                    var hasNullSubstituteProp = cfgType.GetProperty("HasNullSubstitute");
+                    var nullSubstituteValueProp = cfgType.GetProperty("NullSubstituteValue");
 
                     var isIgnored = isIgnoredProp != null && (bool)isIgnoredProp.GetValue(customConfig);
                     if (isIgnored)
                         continue;
+
+                    // Get Condition and NullSubstitute configuration
+                    var conditionFunc = conditionFuncProp?.GetValue(customConfig) as Delegate;
+                    var hasNullSubstitute = hasNullSubstituteProp != null && (bool)hasNullSubstituteProp.GetValue(customConfig);
+                    var nullSubstituteValue = hasNullSubstitute ? nullSubstituteValueProp?.GetValue(customConfig) : null;
 
                     var srcSelector = sourceExprProp?.GetValue(customConfig) as LambdaExpression;
                     if (srcSelector != null)
@@ -278,115 +320,35 @@ namespace Simple.AutoMapper.Core
                         var projected = replacedBody;
                         var projectedType = replacedBody.Type;
 
-                        // Simple/convertible assignment
-                        if (IsSimpleType(GetUnderlyingType(projectedType)) && IsSimpleType(GetUnderlyingType(destProperty.PropertyType)))
-                        {
-                            Expression converted;
-                            if (projectedType == destProperty.PropertyType)
-                            {
-                                converted = projected;
-                            }
-                            else
-                            {
-                                converted = Expression.Convert(projected, destProperty.PropertyType);
-                            }
+                        // Build the assignment expression with Condition and NullSubstitute support
+                        Expression assignmentExpr = BuildForMemberAssignment(
+                            sourceParam, contextParam, destinationValue, destProperty,
+                            projected, projectedType, conditionFunc, hasNullSubstitute, nullSubstituteValue);
 
-                            // Use a temp variable to guarantee evaluation of the projection before assignment
-                            var tmp = Expression.Variable(destProperty.PropertyType, "_mfS");
-                            var assignTmp = Expression.Assign(tmp, converted);
-                            var assignDest = Expression.Assign(destinationValue, tmp);
-                            expressions.Add(Expression.Block(new[] { tmp }, assignTmp, assignDest));
+                        if (assignmentExpr != null)
+                        {
+                            expressions.Add(assignmentExpr);
                             continue;
                         }
-
-                        // Simple types: direct assignment or conversion
-                        if (IsSimpleType(projectedType))
+                    }
+                    else if (conditionFunc != null || hasNullSubstitute)
+                    {
+                        // ForMember with Condition/NullSubstitute but no MapFrom - apply to default by-name mapping
+                        if (sourceProperties.TryGetValue(destProperty.Name, out var srcProp))
                         {
-                            if (projectedType == destProperty.PropertyType)
+                            var sourceValue = Expression.Property(sourceParam, srcProp);
+                            Expression assignmentExpr = BuildForMemberAssignment(
+                                sourceParam, contextParam, destinationValue, destProperty,
+                                sourceValue, srcProp.PropertyType, conditionFunc, hasNullSubstitute, nullSubstituteValue);
+
+                            if (assignmentExpr != null)
                             {
-                                // Direct assignment when types match
-                                expressions.Add(Expression.Assign(destinationValue, projected));
-                            }
-                            else if (IsSimpleType(destProperty.PropertyType))
-                            {
-                                // Convert between compatible simple types
-                                var convertedValue = Expression.Convert(projected, destProperty.PropertyType);
-                                expressions.Add(Expression.Assign(destinationValue, convertedValue));
-                            }
-                            continue;
-                        }
-
-                        // Complex types: guard circular refs and map recursively, with cached reuse when preserving references
-                        if (IsComplexType(projectedType) && IsComplexType(destProperty.PropertyType))
-                        {
-                            var valueVar = Expression.Variable(projectedType, "_mf");
-                            var assignValue = Expression.Assign(valueVar, projected);
-
-                            var nestedTypePair = new TypePair(projectedType, destProperty.PropertyType);
-                            var nullCheck = Expression.NotEqual(valueVar, Expression.Constant(null, projectedType));
-
-                            var isCircularMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.IsCircularReference));
-                            var circularCheck = Expression.Call(
-                                contextParam,
-                                isCircularMethod,
-                                Expression.Convert(valueVar, typeof(object)),
-                                Expression.Constant(nestedTypePair)
-                            );
-                            var preserveProp = Expression.Property(contextParam, nameof(MappingContext.PreserveReferences));
-
-                            var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstanceWithContext), BindingFlags.NonPublic | BindingFlags.Instance)
-                                .MakeGenericMethod(projectedType, destProperty.PropertyType);
-                            var mappedValue = Expression.Call(
-                                Expression.Constant(this),
-                                mapMethod,
-                                valueVar,
-                                contextParam
-                            );
-                            // destination = (TDest)context.GetCachedDestination(value, typeof(TDest))
-                            var getCachedMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.GetCachedDestination));
-                            var getCachedCall = Expression.Call(
-                                contextParam,
-                                getCachedMethod,
-                                Expression.Convert(valueVar, typeof(object)),
-                                Expression.Constant(destProperty.PropertyType)
-                            );
-                            var cachedCast = Expression.Convert(getCachedCall, destProperty.PropertyType);
-
-                            // if (preserve && circular) { destination = cached; } else if (!circular) { destination = map(value); }
-                            var ifCircularAssignCached = Expression.IfThen(
-                                Expression.AndAlso(preserveProp, circularCheck),
-                                Expression.Assign(destinationValue, cachedCast)
-                            );
-                            var ifNotCircularMap = Expression.IfThen(
-                                Expression.AndAlso(nullCheck, Expression.Not(circularCheck)),
-                                Expression.Assign(destinationValue, mappedValue)
-                            );
-
-                            var block = Expression.Block(new[] { valueVar }, assignValue, ifCircularAssignCached, ifNotCircularMap);
-                            expressions.Add(block);
-                            continue;
-                        }
-
-                        // Collections mapping (minimal)
-                        if (IsCollectionType(projectedType) && IsCollectionType(destProperty.PropertyType))
-                        {
-                            var srcElem = GetCollectionElementType(projectedType);
-                            var dstElem = GetCollectionElementType(destProperty.PropertyType);
-                            if (srcElem != null && dstElem != null)
-                            {
-                                var mapListMethod = typeof(MappingEngine).GetMethod(nameof(MapCollection))
-                                    .MakeGenericMethod(srcElem, dstElem);
-                                var mappedCollection = Expression.Call(
-                                    Expression.Constant(this),
-                                    mapListMethod,
-                                    projected
-                                );
-                                expressions.Add(Expression.Assign(destinationValue, mappedCollection));
+                                expressions.Add(assignmentExpr);
                                 continue;
                             }
                         }
                     }
-                    // If custom config exists but no lambda, fall through to default mapping
+                    // If custom config exists but no lambda and no condition/nullsubstitute, fall through to default mapping
                 }
 
                 // Default: by-name mapping
@@ -494,6 +456,17 @@ namespace Simple.AutoMapper.Core
                 }
             }
 
+            // Execute AfterMap if configured
+            if (afterMapAction != null)
+            {
+                var afterMapInvoke = Expression.Invoke(
+                    Expression.Constant(afterMapAction),
+                    sourceParam,
+                    destinationVar
+                );
+                expressions.Add(afterMapInvoke);
+            }
+
             // Return destination
             expressions.Add(destinationVar);
 
@@ -518,6 +491,163 @@ namespace Simple.AutoMapper.Core
         // Generic helper to invoke a compiled selector in expression trees reliably across runtimes
         private static TResult InvokeSelector<TSrc, TResult>(TSrc source, Func<TSrc, TResult> selector)
             => selector != null ? selector(source) : default;
+
+        /// <summary>
+        /// Builds an expression for ForMember assignment with Condition and NullSubstitute support.
+        /// </summary>
+        private Expression BuildForMemberAssignment(
+            ParameterExpression sourceParam,
+            ParameterExpression contextParam,
+            MemberExpression destinationValue,
+            PropertyInfo destProperty,
+            Expression projected,
+            Type projectedType,
+            Delegate conditionFunc,
+            bool hasNullSubstitute,
+            object nullSubstituteValue)
+        {
+            Expression assignmentBody = null;
+
+            // Simple/convertible assignment
+            if (IsSimpleType(GetUnderlyingType(projectedType)) && IsSimpleType(GetUnderlyingType(destProperty.PropertyType)))
+            {
+                Expression valueExpr;
+                if (projectedType == destProperty.PropertyType)
+                {
+                    valueExpr = projected;
+                }
+                else
+                {
+                    valueExpr = Expression.Convert(projected, destProperty.PropertyType);
+                }
+
+                // Apply NullSubstitute if configured
+                if (hasNullSubstitute && !destProperty.PropertyType.IsValueType)
+                {
+                    var nullSubstituteExpr = Expression.Constant(nullSubstituteValue, destProperty.PropertyType);
+                    var isNullCheck = Expression.Equal(valueExpr, Expression.Constant(null, destProperty.PropertyType));
+                    valueExpr = Expression.Condition(isNullCheck, nullSubstituteExpr, valueExpr);
+                }
+                else if (hasNullSubstitute && Nullable.GetUnderlyingType(projectedType) != null)
+                {
+                    // Handle Nullable<T> with NullSubstitute
+                    var tmp = Expression.Variable(projectedType, "_ns");
+                    var assignTmp = Expression.Assign(tmp, projected);
+                    var hasValueCheck = Expression.Property(tmp, "HasValue");
+                    var nullSubstituteExpr = Expression.Constant(nullSubstituteValue, destProperty.PropertyType);
+                    var convertedValue = projectedType == destProperty.PropertyType
+                        ? (Expression)tmp
+                        : Expression.Convert(tmp, destProperty.PropertyType);
+                    var conditionalValue = Expression.Condition(hasValueCheck, convertedValue, nullSubstituteExpr);
+                    var assignDest = Expression.Assign(destinationValue, conditionalValue);
+                    assignmentBody = Expression.Block(new[] { tmp }, assignTmp, assignDest);
+                }
+
+                if (assignmentBody == null)
+                {
+                    var tmp = Expression.Variable(destProperty.PropertyType, "_mfS");
+                    var assignTmp = Expression.Assign(tmp, valueExpr);
+                    var assignDest = Expression.Assign(destinationValue, tmp);
+                    assignmentBody = Expression.Block(new[] { tmp }, assignTmp, assignDest);
+                }
+            }
+            // Complex types: guard circular refs and map recursively
+            else if (IsComplexType(projectedType) && IsComplexType(destProperty.PropertyType))
+            {
+                var valueVar = Expression.Variable(projectedType, "_mf");
+                var assignValue = Expression.Assign(valueVar, projected);
+
+                var nestedTypePair = new TypePair(projectedType, destProperty.PropertyType);
+                var nullCheck = Expression.NotEqual(valueVar, Expression.Constant(null, projectedType));
+
+                var isCircularMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.IsCircularReference));
+                var circularCheck = Expression.Call(
+                    contextParam,
+                    isCircularMethod,
+                    Expression.Convert(valueVar, typeof(object)),
+                    Expression.Constant(nestedTypePair)
+                );
+                var preserveProp = Expression.Property(contextParam, nameof(MappingContext.PreserveReferences));
+
+                var mapMethod = typeof(MappingEngine).GetMethod(nameof(MapInstanceWithContext), BindingFlags.NonPublic | BindingFlags.Instance)
+                    .MakeGenericMethod(projectedType, destProperty.PropertyType);
+                var mappedValue = Expression.Call(
+                    Expression.Constant(this),
+                    mapMethod,
+                    valueVar,
+                    contextParam
+                );
+
+                var getCachedMethod = typeof(MappingContext).GetMethod(nameof(MappingContext.GetCachedDestination));
+                var getCachedCall = Expression.Call(
+                    contextParam,
+                    getCachedMethod,
+                    Expression.Convert(valueVar, typeof(object)),
+                    Expression.Constant(destProperty.PropertyType)
+                );
+                var cachedCast = Expression.Convert(getCachedCall, destProperty.PropertyType);
+
+                var ifCircularAssignCached = Expression.IfThen(
+                    Expression.AndAlso(preserveProp, circularCheck),
+                    Expression.Assign(destinationValue, cachedCast)
+                );
+
+                Expression mapOrSubstitute;
+                if (hasNullSubstitute)
+                {
+                    var nullSubstituteExpr = Expression.Constant(nullSubstituteValue, destProperty.PropertyType);
+                    mapOrSubstitute = Expression.IfThenElse(
+                        nullCheck,
+                        Expression.IfThen(
+                            Expression.Not(circularCheck),
+                            Expression.Assign(destinationValue, mappedValue)
+                        ),
+                        Expression.Assign(destinationValue, nullSubstituteExpr)
+                    );
+                }
+                else
+                {
+                    mapOrSubstitute = Expression.IfThen(
+                        Expression.AndAlso(nullCheck, Expression.Not(circularCheck)),
+                        Expression.Assign(destinationValue, mappedValue)
+                    );
+                }
+
+                assignmentBody = Expression.Block(new[] { valueVar }, assignValue, ifCircularAssignCached, mapOrSubstitute);
+            }
+            // Collections mapping
+            else if (IsCollectionType(projectedType) && IsCollectionType(destProperty.PropertyType))
+            {
+                var srcElem = GetCollectionElementType(projectedType);
+                var dstElem = GetCollectionElementType(destProperty.PropertyType);
+                if (srcElem != null && dstElem != null)
+                {
+                    var mapListMethod = typeof(MappingEngine).GetMethod(nameof(MapCollection))
+                        .MakeGenericMethod(srcElem, dstElem);
+                    var mappedCollection = Expression.Call(
+                        Expression.Constant(this),
+                        mapListMethod,
+                        projected
+                    );
+                    assignmentBody = Expression.Assign(destinationValue, mappedCollection);
+                }
+            }
+
+            if (assignmentBody == null)
+                return null;
+
+            // Wrap with Condition if specified
+            if (conditionFunc != null)
+            {
+                var conditionInvoke = Expression.Invoke(
+                    Expression.Constant(conditionFunc),
+                    sourceParam
+                );
+                return Expression.IfThen(conditionInvoke, assignmentBody);
+            }
+
+            return assignmentBody;
+        }
 
         private sealed class ParameterReplaceVisitor : ExpressionVisitor
         {

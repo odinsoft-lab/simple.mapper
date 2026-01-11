@@ -17,11 +17,17 @@ namespace Simple.AutoMapper.Internal
         private readonly Dictionary<string, object> _customMappings = new();
         private int _maxDepth = 0; // 0 means unlimited
         private bool _preserveReferences = false;
+        private Action<TSource, TDestination> _beforeMapAction;
+        private Action<TSource, TDestination> _afterMapAction;
+        private Func<TSource, TDestination> _constructUsing;
 
         public Type SourceType => typeof(TSource);
         public Type DestinationType => typeof(TDestination);
         public int MaxDepthValue => _maxDepth;
         public bool PreserveReferencesValue => _preserveReferences;
+        public Delegate BeforeMapAction => _beforeMapAction;
+        public Delegate AfterMapAction => _afterMapAction;
+        public Delegate ConstructUsingFunc => _constructUsing;
 
         public MappingExpression(MappingEngine engine)
         {
@@ -72,6 +78,24 @@ namespace Simple.AutoMapper.Internal
         public IMappingExpression<TSource, TDestination> PreserveReferences()
         {
             _preserveReferences = true;
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> BeforeMap(Action<TSource, TDestination> beforeFunction)
+        {
+            _beforeMapAction = beforeFunction;
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> AfterMap(Action<TSource, TDestination> afterFunction)
+        {
+            _afterMapAction = afterFunction;
+            return this;
+        }
+
+        public IMappingExpression<TSource, TDestination> ConstructUsing(Func<TSource, TDestination> constructor)
+        {
+            _constructUsing = constructor;
             return this;
         }
 

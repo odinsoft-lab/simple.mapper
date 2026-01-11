@@ -49,5 +49,27 @@ namespace Simple.AutoMapper.Interfaces
         /// </summary>
         /// <returns>The current mapping expression for chaining.</returns>
         IMappingExpression<TSource, TDestination> PreserveReferences();
+
+        /// <summary>
+        /// Specifies an action to execute before mapping occurs.
+        /// </summary>
+        /// <param name="beforeFunction">The action to execute before mapping. Takes source and destination as parameters.</param>
+        /// <returns>The current mapping expression for chaining.</returns>
+        IMappingExpression<TSource, TDestination> BeforeMap(Action<TSource, TDestination> beforeFunction);
+
+        /// <summary>
+        /// Specifies an action to execute after mapping occurs.
+        /// </summary>
+        /// <param name="afterFunction">The action to execute after mapping. Takes source and destination as parameters.</param>
+        /// <returns>The current mapping expression for chaining.</returns>
+        IMappingExpression<TSource, TDestination> AfterMap(Action<TSource, TDestination> afterFunction);
+
+        /// <summary>
+        /// Specifies a custom constructor function to create the destination object.
+        /// Use this for types without a parameterless constructor or when custom initialization is needed.
+        /// </summary>
+        /// <param name="constructor">A function that takes the source object and returns a new destination instance.</param>
+        /// <returns>The current mapping expression for chaining.</returns>
+        IMappingExpression<TSource, TDestination> ConstructUsing(Func<TSource, TDestination> constructor);
     }
 }

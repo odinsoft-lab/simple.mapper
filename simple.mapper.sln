@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.2.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C8D5274F-A
 		docs\DEPLOYMENT.md = docs\DEPLOYMENT.md
 		docs\ROADMAP.md = docs\ROADMAP.md
 		docs\TASK.md = docs\TASK.md
+		docs\TODO.md = docs\TODO.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2A3A057F-5D22-31FD-628C-DF5EF75AEF1E}"
@@ -32,6 +33,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicSample", "samples\BasicSample\BasicSample.csproj", "{74BBC3A6-9354-84D5-89D6-A058F55A53DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiSample", "samples\WebApiSample\WebApiSample.csproj", "{F93A22E9-C169-C7D9-9DF7-8A5F2BDEC953}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{4E33BF5D-55FD-4CC1-A90E-69B7CB4481FF}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\nuget-config.ps1.example = scripts\nuget-config.ps1.example
+		scripts\publish-nuget.ps1 = scripts\publish-nuget.ps1
+		scripts\unlist-nuget.ps1 = scripts\unlist-nuget.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -10,9 +10,9 @@
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.8</Version>
-		<AssemblyVersion>1.0.8.8</AssemblyVersion>
-		<FileVersion>1.0.8.8</FileVersion>
+		<Version>1.0.9</Version>
+		<AssemblyVersion>1.0.9.0</AssemblyVersion>
+		<FileVersion>1.0.9.0</FileVersion>
 
 		<!-- Package Information -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,16 +30,20 @@
 		<PackageIcon>Simple.Mapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.8
- - Add ISimpleMapper interface and SimpleMapper for dependency injection
- - Add IServiceCollection.AddSimpleMapper() extension method - automatically registers ISimpleMapper as singleton
- - Add MapperConfiguration class for fluent profile configuration
- - Support constructor injection: inject ISimpleMapper into controllers/services
- - Support AddSimpleMapper(cfg => cfg.AddProfile&lt;T&gt;()) pattern
- - Support assembly scanning: AddSimpleMapper(typeof(Profile).Assembly)
- - Available for netstandard2.1, net8.0, net9.0 (DI features)
- - All existing v1.0.7 features remain compatible
- - Targets: netstandard2.0, netstandard2.1, net8.0, net9.0</PackageReleaseNotes>
+		<PackageReleaseNotes>v1.0.9
+ - Add ForMember Condition support for conditional property mapping
+ - Add ForMember NullSubstitute support for null value replacement
+ - Add BeforeMap/AfterMap callbacks for pre/post mapping logic
+ - Add ConstructUsing for custom object construction (immutable objects support)
+ - Increase test coverage from 63% to 87% (line coverage)
+ - Add comprehensive test suites for DI, Profile, MappingContext, TypePair, SyncResult
+ - Add net10.0 target framework support
+ - Fix PreserveReferences circular reference detection bug
+ - Fix net9.0 missing from DI support condition
+ - Add Mapper.Map&lt;List&lt;TDestination&gt;&gt;(entities) single type parameter support
+ - Upgrade Microsoft.Extensions.* packages to 10.0.1
+ - All existing v1.0.8 features remain compatible
+ - Targets: netstandard2.0, netstandard2.1, net8.0, net9.0, net10.0</PackageReleaseNotes>
 
 		<!-- Repository Information -->
 		<RepositoryUrl>https://github.com/odinsoft-lab/simple.mapper</RepositoryUrl>
@@ -78,13 +82,13 @@
 	</ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
     </ItemGroup>
 
-    <!-- DI support for netstandard2.1+ and .NET 8.0+ -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net10.0'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
+    <!-- DI support for netstandard2.1+ and .NET 8.0+ (excludes netstandard2.0) -->
+    <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
     </ItemGroup>
 
 </Project>

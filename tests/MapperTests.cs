@@ -7,6 +7,12 @@ namespace Simple.AutoMapper.Tests
     [Collection("Mapper Tests")]
     public class MapperTests
     {
+        public MapperTests()
+        {
+            // Reset mapper state before each test to avoid test pollution
+            Mapper.Reset();
+        }
+
         [Fact]
         public void Map_Entity_ShouldMapAllProperties()
         {
@@ -340,7 +346,7 @@ namespace Simple.AutoMapper.Tests
         [Fact]
         public void MapListInferred_WithSingleTypeParameter_ShouldMapCollection()
         {
-            // Arrange - Mapper.Map<List<TDestination>>(entities) 형태 테스트
+            // Arrange - Test Mapper.Map<List<TDestination>>(entities) pattern
             var entities = new List<Entity17>
             {
                 new Entity17 { Id = Guid.NewGuid() },
@@ -348,7 +354,7 @@ namespace Simple.AutoMapper.Tests
                 new Entity17 { Id = Guid.NewGuid() }
             };
 
-            // Act - 소스 타입을 추론하여 매핑
+            // Act - Map by inferring source type
             var dtos = Mapper.Map<List<EntityDTO17>>(entities);
 
             // Assert
