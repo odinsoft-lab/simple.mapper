@@ -187,7 +187,7 @@ namespace Simple.AutoMapper.Tests
         }
 
         [Fact]
-        public void ISimpleMapper_MapTo_Generic_ShouldWork()
+        public void ISimpleMapper_Map_InPlace_ShouldWork()
         {
             // Arrange
             Mapper.Reset();
@@ -200,27 +200,7 @@ namespace Simple.AutoMapper.Tests
             var dto = new EntityDTO8 { Id = Guid.Empty };
 
             // Act
-            mapper.MapTo(entity, dto);
-
-            // Assert
-            Assert.Equal(entity.Id, dto.Id);
-        }
-
-        [Fact]
-        public void ISimpleMapper_MapTo_NonGeneric_ShouldWork()
-        {
-            // Arrange
-            Mapper.Reset();
-            var services = new ServiceCollection();
-            services.AddSimpleMapper(config => config.AddProfile<TestProfile>());
-            var provider = services.BuildServiceProvider();
-            var mapper = provider.GetRequiredService<ISimpleMapper>();
-
-            var entity = new Entity8 { Id = Guid.NewGuid() };
-            var dto = new EntityDTO8 { Id = Guid.Empty };
-
-            // Act - Use generic version (non-generic currently uses object type which doesn't map properties)
-            mapper.MapTo(entity, dto);
+            mapper.Map(entity, dto);
 
             // Assert
             Assert.Equal(entity.Id, dto.Id);

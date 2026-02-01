@@ -39,17 +39,44 @@ namespace Simple.AutoMapper.Services
         /// <summary>
         /// Updates an existing destination instance with values from source.
         /// </summary>
-        public void MapTo<TSource, TDestination>(TSource source, TDestination destination)
+        public void Map<TSource, TDestination>(TSource source, TDestination destination)
         {
             Core.Mapper.Map(source, destination);
         }
 
         /// <summary>
-        /// Updates an existing destination instance with values from source (non-generic version).
+        /// Creates a new destination instance and patches it with non-null values from source.
         /// </summary>
-        public void MapTo(object source, object destination)
+        public TDestination Patch<TSource, TDestination>(TSource source)
+            where TDestination : new()
         {
-            Core.Mapper.Map(source, destination);
+            return Core.Mapper.Patch<TSource, TDestination>(source);
+        }
+
+        /// <summary>
+        /// Creates a new destination instance and patches it with non-null values from source (non-generic).
+        /// </summary>
+        public TDestination Patch<TDestination>(object source)
+            where TDestination : new()
+        {
+            return Core.Mapper.Patch<TDestination>(source);
+        }
+
+        /// <summary>
+        /// Patches a collection of source items to a list of destination items with null-skip semantics.
+        /// </summary>
+        public List<TDestination> Patch<TSource, TDestination>(IEnumerable<TSource> sourceList)
+            where TDestination : new()
+        {
+            return Core.Mapper.Patch<TSource, TDestination>(sourceList);
+        }
+
+        /// <summary>
+        /// Patches an existing destination instance with non-null values from source.
+        /// </summary>
+        public void Patch<TSource, TDestination>(TSource source, TDestination destination)
+        {
+            Core.Mapper.Patch(source, destination);
         }
     }
 }

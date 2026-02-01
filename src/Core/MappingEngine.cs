@@ -795,6 +795,218 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
+        /// Patches an existing destination object with non-null values from the source object.
+        /// Properties where the source value is null are skipped, preserving the destination's existing values.
+        /// Useful for partial/PATCH update scenarios.
+        /// </summary>
+        /// <param name="source">Source instance containing update values. Null properties are skipped.</param>
+        /// <param name="destination">Existing destination instance to be partially updated.</param>
+        public void PatchPropertiesGeneric<TSource, TDestination>(TSource source, TDestination destination)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var sourceType = typeof(TSource);
+            var destinationType = typeof(TDestination);
+
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var destinationProperties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                if (!sourceProperty.CanRead)
+                    continue;
+
+                if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+                {
+                    try
+                    {
+                        var sourceValue = sourceProperty.GetValue(source);
+                        var sourcePropType = sourceProperty.PropertyType;
+                        var destPropType = destinationProperty.PropertyType;
+
+                        // Determine if source property is nullable
+                        var sourceUnderlyingType = Nullable.GetUnderlyingType(sourcePropType);
+                        var isSourceNullableValueType = sourceUnderlyingType != null;
+                        var isSourceReferenceType = !sourcePropType.IsValueType;
+
+                        // Skip null values for reference types and Nullable<T> types
+                        if (sourceValue == null && (isSourceReferenceType || isSourceNullableValueType))
+                            continue;
+
+                        // For non-nullable value types (int, bool, DateTime, enum, etc.), always assign
+                        // For reference types and Nullable<T> with non-null values, proceed to assign
+
+                        // Handle simple types (value types, strings, primitives, enums, etc.)
+                        if (IsSimpleType(sourcePropType))
+                        {
+                            if (sourcePropType == destPropType)
+                            {
+                                destinationProperty.SetValue(destination, sourceValue);
+                            }
+                            else if (isSourceNullableValueType)
+                            {
+                                // Nullable<T> source -> T destination (unwrap)
+                                var destUnderlyingType = Nullable.GetUnderlyingType(destPropType) ?? destPropType;
+                                if (sourceUnderlyingType == destUnderlyingType)
+                                {
+                                    // sourceValue is already the unwrapped value when boxed
+                                    destinationProperty.SetValue(destination, sourceValue);
+                                }
+                            }
+                            else
+                            {
+                                // T source -> Nullable<T> destination
+                                var destUnderlyingType = Nullable.GetUnderlyingType(destPropType);
+                                if (destUnderlyingType != null && destUnderlyingType == sourcePropType)
+                                {
+                                    destinationProperty.SetValue(destination, sourceValue);
+                                }
+                            }
+                        }
+                        // Handle nested complex types (only when source is non-null)
+                        else if (IsComplexType(sourcePropType) && IsComplexType(destPropType))
+                        {
+                            var mappedValue = MapComplexTypeReflection(sourceValue, sourcePropType, destPropType);
+                            destinationProperty.SetValue(destination, mappedValue);
+                        }
+                        // Handle collections (only when source is non-null)
+                        else if (IsCollectionType(sourcePropType) && IsCollectionType(destPropType))
+                        {
+                            var mappedCollection = MapCollectionReflection(sourceValue, sourcePropType, destPropType);
+                            destinationProperty.SetValue(destination, mappedCollection);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip properties that cannot be mapped
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Patches an existing destination object with non-null values from the source object (non-generic version).
+        /// Uses source.GetType() for reflection. Null source properties are skipped.
+        /// </summary>
+        private void PatchPropertiesReflectionInternal(object source, object destination)
+        {
+            if (source == null || destination == null)
+                return;
+
+            var sourceType = source.GetType();
+            var destinationType = destination.GetType();
+
+            var sourceProperties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var destinationProperties = destinationType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite)
+                .ToDictionary(p => p.Name, p => p);
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                if (!sourceProperty.CanRead)
+                    continue;
+
+                if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+                {
+                    try
+                    {
+                        var sourceValue = sourceProperty.GetValue(source);
+                        var sourcePropType = sourceProperty.PropertyType;
+                        var destPropType = destinationProperty.PropertyType;
+
+                        var sourceUnderlyingType = Nullable.GetUnderlyingType(sourcePropType);
+                        var isSourceNullableValueType = sourceUnderlyingType != null;
+                        var isSourceReferenceType = !sourcePropType.IsValueType;
+
+                        if (sourceValue == null && (isSourceReferenceType || isSourceNullableValueType))
+                            continue;
+
+                        if (IsSimpleType(sourcePropType))
+                        {
+                            if (sourcePropType == destPropType)
+                            {
+                                destinationProperty.SetValue(destination, sourceValue);
+                            }
+                            else if (isSourceNullableValueType)
+                            {
+                                var destUnderlyingType = Nullable.GetUnderlyingType(destPropType) ?? destPropType;
+                                if (sourceUnderlyingType == destUnderlyingType)
+                                {
+                                    destinationProperty.SetValue(destination, sourceValue);
+                                }
+                            }
+                            else
+                            {
+                                var destUnderlyingType = Nullable.GetUnderlyingType(destPropType);
+                                if (destUnderlyingType != null && destUnderlyingType == sourcePropType)
+                                {
+                                    destinationProperty.SetValue(destination, sourceValue);
+                                }
+                            }
+                        }
+                        else if (IsComplexType(sourcePropType) && IsComplexType(destPropType))
+                        {
+                            var mappedValue = MapComplexTypeReflection(sourceValue, sourcePropType, destPropType);
+                            destinationProperty.SetValue(destination, mappedValue);
+                        }
+                        else if (IsCollectionType(sourcePropType) && IsCollectionType(destPropType))
+                        {
+                            var mappedCollection = MapCollectionReflection(sourceValue, sourcePropType, destPropType);
+                            destinationProperty.SetValue(destination, mappedCollection);
+                        }
+                    }
+                    catch
+                    {
+                        // Skip properties that cannot be mapped
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a new destination instance and patches it with non-null values from the source.
+        /// </summary>
+        public TDestination PatchInstance<TSource, TDestination>(TSource source)
+            where TDestination : new()
+        {
+            if (source == null)
+                return default(TDestination);
+
+            var destination = new TDestination();
+            PatchPropertiesGeneric(source, destination);
+            return destination;
+        }
+
+        /// <summary>
+        /// Creates a new destination instance and patches it with non-null values from the source object (non-generic version).
+        /// </summary>
+        public TDestination PatchPropertiesReflection<TDestination>(object source)
+            where TDestination : new()
+        {
+            if (source == null)
+                return default(TDestination);
+
+            var destination = new TDestination();
+            PatchPropertiesReflectionInternal(source, destination);
+            return destination;
+        }
+
+        /// <summary>
+        /// Patches a collection of source objects to a List of new destination objects with null-skip semantics.
+        /// </summary>
+        public List<TDestination> PatchCollection<TSource, TDestination>(IEnumerable<TSource> sourceList)
+            where TDestination : new()
+        {
+            if (sourceList == null)
+                return null;
+
+            return sourceList.Select(s => PatchInstance<TSource, TDestination>(s)).ToList();
+        }
+
+        /// <summary>
         /// Map complex nested types using reflection
         /// </summary>
         private object MapComplexTypeReflection(object sourceValue, Type sourceType, Type destinationType)

@@ -79,6 +79,60 @@ namespace Simple.AutoMapper.Core
         }
 
         /// <summary>
+        /// Creates a new <typeparamref name="TDestination"/> instance and patches it with non-null values from <paramref name="source"/>.
+        /// Properties where the source value is null are skipped.
+        /// </summary>
+        /// <param name="source">Source instance. Null properties are skipped.</param>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type. Must have parameterless constructor.</typeparam>
+        /// <returns>New destination instance with non-null values patched, or default if source is null.</returns>
+        public static TDestination Patch<TSource, TDestination>(TSource source)
+            where TDestination : new()
+        {
+            return Default.PatchInstance<TSource, TDestination>(source);
+        }
+
+        /// <summary>
+        /// Creates a new <typeparamref name="TDestination"/> instance and patches it with non-null values from <paramref name="source"/>
+        /// by inferring the source type from the object instance.
+        /// </summary>
+        /// <param name="source">Source instance. Null properties are skipped.</param>
+        /// <typeparam name="TDestination">Destination type. Must have parameterless constructor.</typeparam>
+        /// <returns>New destination instance with non-null values patched, or default if source is null.</returns>
+        public static TDestination Patch<TDestination>(object source)
+            where TDestination : new()
+        {
+            return Default.PatchPropertiesReflection<TDestination>(source);
+        }
+
+        /// <summary>
+        /// Patches a collection of <typeparamref name="TSource"/> to a List of <typeparamref name="TDestination"/> with null-skip semantics.
+        /// </summary>
+        /// <param name="sourceList">Source collection to patch.</param>
+        /// <typeparam name="TSource">Source element type.</typeparam>
+        /// <typeparam name="TDestination">Destination element type. Must have parameterless constructor.</typeparam>
+        /// <returns>List of patched destination instances, or null if sourceList is null.</returns>
+        public static List<TDestination> Patch<TSource, TDestination>(IEnumerable<TSource> sourceList)
+            where TDestination : new()
+        {
+            return Default.PatchCollection<TSource, TDestination>(sourceList);
+        }
+
+        /// <summary>
+        /// Patches an existing <paramref name="destination"/> with non-null values from <paramref name="source"/>.
+        /// Properties where the source value is null are skipped, preserving the destination's existing values.
+        /// Useful for partial/PATCH update scenarios where only provided fields should be updated.
+        /// </summary>
+        /// <param name="source">Source instance containing update values. Null properties are skipped.</param>
+        /// <param name="destination">Existing destination instance to be partially updated.</param>
+        /// <typeparam name="TSource">Source type.</typeparam>
+        /// <typeparam name="TDestination">Destination type.</typeparam>
+        public static void Patch<TSource, TDestination>(TSource source, TDestination destination)
+        {
+            Default.PatchPropertiesGeneric(source, destination);
+        }
+
+        /// <summary>
         /// Adds a profile containing mapping configurations.
         /// Creates an instance of <typeparamref name="TProfile"/> and executes its configuration.
         /// </summary>

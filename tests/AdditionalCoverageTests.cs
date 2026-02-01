@@ -538,7 +538,7 @@ namespace Simple.AutoMapper.Tests
 
         #endregion
 
-        #region MapTo Tests
+        #region Map In-Place Tests
 
         [Fact]
         public void MapTo_ShouldUpdateExistingInstance()
@@ -963,10 +963,10 @@ namespace Simple.AutoMapper.Tests
 
         #endregion
 
-        #region SimpleMapper Non-Generic MapTo Tests
+        #region SimpleMapper Map In-Place Tests
 
         [Fact]
-        public void SimpleMapper_MapTo_GenericVersion_ShouldMapCorrectly()
+        public void SimpleMapper_Map_InPlace_ShouldMapCorrectly()
         {
             // Arrange
             Mapper.Reset();
@@ -981,7 +981,7 @@ namespace Simple.AutoMapper.Tests
             var destination = new EntityDTO17();
 
             // Act
-            mapper.MapTo(source, destination);
+            mapper.Map(source, destination);
 
             // Assert
             Assert.Equal(source.Id, destination.Id);

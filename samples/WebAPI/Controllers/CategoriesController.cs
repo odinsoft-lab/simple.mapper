@@ -4,6 +4,10 @@ using WebApiSample.Models;
 
 namespace WebApiSample.Controllers;
 
+/// <summary>
+/// Categories REST API demonstrating ISimpleMapper (Dependency Injection pattern).
+/// All mapping uses the injected ISimpleMapper instance.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase
@@ -15,9 +19,6 @@ public class CategoriesController : ControllerBase
     private readonly ILogger<CategoriesController> _logger;
     private readonly ISimpleMapper _mapper; // ISimpleMapper injected via DI
 
-    /// <summary>
-    /// Constructor with ISimpleMapper dependency injection
-    /// </summary>
     public CategoriesController(
         ILogger<CategoriesController> logger,
         ISimpleMapper mapper)
@@ -27,48 +28,38 @@ public class CategoriesController : ControllerBase
     }
 
     /// <summary>
-    /// Get all categories (demonstrates ISimpleMapper.Map with List)
+    /// GET /api/categories
+    /// Demonstrates ISimpleMapper.Map with collection.
     /// </summary>
     [HttpGet]
     public ActionResult<IEnumerable<CategoryDto>> GetAll()
     {
-        _logger.LogInformation("Getting all categories using injected ISimpleMapper");
-
-        // Use injected ISimpleMapper to map List
         var categoryDtos = _mapper.Map<CategoryEntity, CategoryDto>(_categories);
-
         return Ok(categoryDtos);
     }
 
     /// <summary>
-    /// Get category by ID (demonstrates ISimpleMapper.Map single object)
+    /// GET /api/categories/{id}
+    /// Demonstrates ISimpleMapper.Map with type-inferred single object.
     /// </summary>
     [HttpGet("{id}")]
     public ActionResult<CategoryDto> GetById(int id)
     {
-        _logger.LogInformation("Getting category with ID: {Id} using injected ISimpleMapper", id);
-
         var category = _categories.FirstOrDefault(c => c.Id == id);
         if (category == null)
-        {
             return NotFound(new { message = $"Category with ID {id} not found" });
-        }
 
-        // Use injected ISimpleMapper to map single object
         var categoryDto = _mapper.Map<CategoryDto>(category);
-
         return Ok(categoryDto);
     }
 
     /// <summary>
-    /// Create new category (demonstrates ISimpleMapper.Map for creation)
+    /// POST /api/categories
+    /// Demonstrates ISimpleMapper.Map for object creation.
     /// </summary>
     [HttpPost]
     public ActionResult<CategoryDto> Create([FromBody] CreateCategoryDto createDto)
     {
-        _logger.LogInformation("Creating new category: {Name} using injected ISimpleMapper", createDto.Name);
-
-        // Use injected ISimpleMapper to map CreateCategoryDto to Entity
         var categoryEntity = _mapper.Map<CategoryEntity>(createDto);
         categoryEntity.Id = _nextId++;
         categoryEntity.CreatedAt = DateTime.UtcNow;
@@ -76,63 +67,71 @@ public class CategoriesController : ControllerBase
 
         _categories.Add(categoryEntity);
 
-        // Map back to DTO for response
         var categoryDto = _mapper.Map<CategoryDto>(categoryEntity);
-
         return CreatedAtAction(nameof(GetById), new { id = categoryDto.Id }, categoryDto);
     }
 
     /// <summary>
-    /// Update existing category (demonstrates ISimpleMapper.MapTo for in-place update)
+    /// PUT /api/categories/{id}
+    /// Demonstrates ISimpleMapper.Map for full in-place update.
+    /// Map overwrites ALL matching properties on the destination.
     /// </summary>
     [HttpPut("{id}")]
     public ActionResult<CategoryDto> Update(int id, [FromBody] UpdateCategoryDto updateDto)
     {
-        _logger.LogInformation("Updating category with ID: {Id} using injected ISimpleMapper", id);
-
         var category = _categories.FirstOrDefault(c => c.Id == id);
         if (category == null)
-        {
             return NotFound(new { message = $"Category with ID {id} not found" });
-        }
 
-        // Use injected ISimpleMapper to update existing entity in-place
-        _mapper.MapTo(updateDto, category);
+        // Map: overwrites ALL matching properties (null source → null/default destination)
+        _mapper.Map(updateDto, category);
         category.UpdatedAt = DateTime.UtcNow;
 
-        // Map updated entity to DTO
         var categoryDto = _mapper.Map<CategoryDto>(category);
-
         return Ok(categoryDto);
     }
 
     /// <summary>
-    /// Delete category
+    /// PATCH /api/categories/{id}
+    /// Demonstrates ISimpleMapper.Patch for partial update.
+    /// Patch skips null source properties, preserving existing destination values.
+    /// </summary>
+    [HttpPatch("{id}")]
+    public ActionResult<CategoryDto> PartialUpdate(int id, [FromBody] UpdateCategoryDto updateDto)
+    {
+        var category = _categories.FirstOrDefault(c => c.Id == id);
+        if (category == null)
+            return NotFound(new { message = $"Category with ID {id} not found" });
+
+        // Patch: only non-null source properties are applied to destination
+        _mapper.Patch(updateDto, category);
+        category.UpdatedAt = DateTime.UtcNow;
+
+        var categoryDto = _mapper.Map<CategoryDto>(category);
+        return Ok(categoryDto);
+    }
+
+    /// <summary>
+    /// DELETE /api/categories/{id}
     /// </summary>
     [HttpDelete("{id}")]
     public ActionResult Delete(int id)
     {
-        _logger.LogInformation("Deleting category with ID: {Id}", id);
-
         var category = _categories.FirstOrDefault(c => c.Id == id);
         if (category == null)
-        {
             return NotFound(new { message = $"Category with ID {id} not found" });
-        }
 
         _categories.Remove(category);
-
         return NoContent();
     }
 
     /// <summary>
-    /// Seed sample categories
+    /// POST /api/categories/seed
+    /// Seeds sample data for testing.
     /// </summary>
     [HttpPost("seed")]
     public ActionResult SeedData()
     {
-        _logger.LogInformation("Seeding sample categories using injected ISimpleMapper");
-
         _categories.Clear();
         _nextId = 1;
 

@@ -4,11 +4,11 @@
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-blue.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![Downloads](https://img.shields.io/nuget/dt/Simple.AutoMapper.svg)](https://www.nuget.org/packages/Simple.AutoMapper/)
-
+[![Coverage](https://img.shields.io/badge/coverage-92.9%25-brightgreen.svg)]()
 
 High-performance object mapping for .NET with expression tree compilation. Simple API, powerful configuration options.
 
-> **v1.0.9** - Added Condition, NullSubstitute, BeforeMap/AfterMap, ConstructUsing. See [Release Notes](docs/releases/v1.0.9.md).
+> **Latest** - Patch overloads (new object, type-inferred, collection), Map in-place via `ISimpleMapper`. See [Release Notes](docs/RELEASE.md).
 
 ## Installation
 
@@ -23,168 +23,29 @@ dotnet add package Simple.AutoMapper
 ```csharp
 using Simple.AutoMapper.Core;
 
-// Simple mapping - no configuration needed
+// Map — copy all properties to new object
 var dto = Mapper.Map<User, UserDto>(user);
-var dtos = Mapper.Map<User, UserDto>(users);
 
-// In-place update
-Mapper.Map(source, existingDestination);
+// Patch — copy only non-null properties (HTTP PATCH scenario)
+Mapper.Patch(partialDto, existingEntity);
 ```
 
-## Configuration Options
-
-### Basic Configuration
+### Before & After
 
 ```csharp
-// Configure mapping with options
-Mapper.CreateMap<User, UserDto>()
-    .Ignore(d => d.Password)
-    .ReverseMap();  // Creates UserDto -> User mapping too
+// ❌ Without Simple.AutoMapper — manual property-by-property copy
+var dto = new UserDto();
+dto.Id = user.Id;
+dto.FirstName = user.FirstName;
+dto.LastName = user.LastName;
+dto.Email = user.Email;
+// ... repeat for every property, every model, every service
+
+// ✅ With Simple.AutoMapper — one line
+var dto = Mapper.Map<User, UserDto>(user);
 ```
 
-### ForMember with MapFrom
-
-```csharp
-Mapper.CreateMap<User, UserDto>()
-    .ForMember(d => d.FullName, opt => opt.MapFrom(s => $"{s.FirstName} {s.LastName}"))
-    .ForMember(d => d.Age, opt => opt.MapFrom(s => DateTime.Now.Year - s.BirthYear));
-```
-
-### Condition - Conditional Mapping
-
-```csharp
-Mapper.CreateMap<User, UserDto>()
-    .ForMember(d => d.Email, opt => {
-        opt.MapFrom(s => s.Email);
-        opt.Condition(s => s.IsEmailVerified);  // Only map if condition is true
-    });
-```
-
-### NullSubstitute - Default Values
-
-```csharp
-Mapper.CreateMap<User, UserDto>()
-    .ForMember(d => d.DisplayName, opt => {
-        opt.MapFrom(s => s.Nickname);
-        opt.NullSubstitute("Anonymous");  // Use "Anonymous" if source is null
-    });
-```
-
-### BeforeMap / AfterMap - Callbacks
-
-```csharp
-Mapper.CreateMap<User, UserDto>()
-    .BeforeMap((src, dest) => {
-        // Execute before property mapping
-        dest.MappedAt = DateTime.UtcNow;
-    })
-    .AfterMap((src, dest) => {
-        // Execute after property mapping
-        dest.FullName = $"{dest.FirstName} {dest.LastName}";
-    });
-```
-
-### ConstructUsing - Custom Construction
-
-```csharp
-// For types without parameterless constructor
-Mapper.CreateMap<User, UserDto>()
-    .ConstructUsing(src => new UserDto(src.Id));
-
-// For immutable objects
-Mapper.CreateMap<User, ImmutableUserDto>()
-    .ConstructUsing(src => new ImmutableUserDto(
-        src.Id,
-        src.Name,
-        src.Email
-    ));
-```
-
-### Circular Reference Handling
-
-```csharp
-Mapper.CreateMap<Parent, ParentDto>()
-    .PreserveReferences()  // Handle circular references
-    .MaxDepth(5);          // Limit recursion depth
-```
-
-## Dependency Injection
-
-```csharp
-// In Program.cs or Startup.cs
-services.AddSimpleMapper(cfg => {
-    cfg.AddProfile<UserMappingProfile>();
-});
-
-// Or scan assemblies
-services.AddSimpleMapper(typeof(UserMappingProfile).Assembly);
-```
-
-### Creating Profiles
-
-```csharp
-public class UserMappingProfile : Profile
-{
-    public UserMappingProfile()
-    {
-        CreateMap<User, UserDto>()
-            .ForMember(d => d.FullName, opt => opt.MapFrom(s => $"{s.FirstName} {s.LastName}"));
-
-        CreateMap<Address, AddressDto>();
-    }
-}
-```
-
-## EF Core Integration
-
-### Read Operations
-
-```csharp
-// Materialize first, then map
-var users = await db.Users
-    .AsNoTracking()
-    .Include(u => u.Address)
-    .ToListAsync();
-
-var dtos = Mapper.Map<User, UserDto>(users);
-```
-
-### Write Operations
-
-```csharp
-// Create
-var entity = Mapper.Map<CreateUserDto, User>(dto);
-await db.Users.AddAsync(entity);
-
-// Update in-place
-var entity = await db.Users.FindAsync(id);
-Mapper.Map(dto, entity);
-await db.SaveChangesAsync();
-```
-
-### Collection Sync
-
-```csharp
-var result = Mapper.Map(
-    dtoList,
-    entityList,
-    dto => dto.Id,
-    entity => entity.Id,
-    removeMissing: true
-);
-// result.Added, result.Updated, result.Removed
-```
-
-## Type Support
-
-| Type | Support |
-|------|---------|
-| Simple types (int, string, DateTime, Guid, etc.) | ✅ |
-| Nullable types | ✅ |
-| Enums | ✅ |
-| Complex types (classes) | ✅ Recursive |
-| Collections (List, Array, IEnumerable) | ✅ |
-| Circular references | ✅ With PreserveReferences() |
+For the full before/after comparison of every feature, see the **[Usage Guide](docs/GUIDE.md)**.
 
 ## Performance
 
@@ -192,10 +53,25 @@ var result = Mapper.Map(
 - Thread-safe caching of compiled mappers
 - First mapping incurs compilation cost; subsequent calls are optimized
 
-## Samples & Tests
+## Test Coverage
 
-- See `samples/` for end-to-end usage examples
-- See `tests/` for comprehensive test coverage including edge cases
+- 242+ tests passing
+- 92.9% line coverage, 88.8% branch coverage
+
+## Documentation
+
+- **[Usage Guide](docs/GUIDE.md)** — Before/after examples, API reference, patterns
+- [Release Notes](docs/RELEASE.md)
+- [Tasks & Roadmap](docs/TASK.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Contributing](docs/CONTRIBUTING.md)
+
+## Samples
+
+| Sample | Location | Demonstrates |
+|--------|----------|--------------|
+| Console | [`samples/Console/`](samples/Console/) | All 19 features with static `Mapper` |
+| WebAPI | [`samples/WebAPI/`](samples/WebAPI/) | REST API with DI, PUT/PATCH endpoints |
 
 ## License
 

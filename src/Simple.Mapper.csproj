@@ -10,9 +10,9 @@
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.9</Version>
-		<AssemblyVersion>1.0.9.0</AssemblyVersion>
-		<FileVersion>1.0.9.0</FileVersion>
+		<Version>1.0.10</Version>
+		<AssemblyVersion>1.0.10.0</AssemblyVersion>
+		<FileVersion>1.0.10.0</FileVersion>
 
 		<!-- Package Information -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,19 +30,16 @@
 		<PackageIcon>Simple.Mapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.9
- - Add ForMember Condition support for conditional property mapping
- - Add ForMember NullSubstitute support for null value replacement
- - Add BeforeMap/AfterMap callbacks for pre/post mapping logic
- - Add ConstructUsing for custom object construction (immutable objects support)
- - Increase test coverage from 63% to 87% (line coverage)
- - Add comprehensive test suites for DI, Profile, MappingContext, TypePair, SyncResult
- - Add net10.0 target framework support
- - Fix PreserveReferences circular reference detection bug
- - Fix net9.0 missing from DI support condition
- - Add Mapper.Map&lt;List&lt;TDestination&gt;&gt;(entities) single type parameter support
- - Upgrade Microsoft.Extensions.* packages to 10.0.1
- - All existing v1.0.8 features remain compatible
+		<PackageReleaseNotes>v1.0.10
+ - Add Patch 4 overloads: new object, type-inferred, collection, in-place (null-skip semantics)
+ - Remove MapTo from ISimpleMapper, replace with Map in-place overload
+ - ISimpleMapper now exposes 8 methods: Map (4) + Patch (4)
+ - Add PatchTests (11 tests) and CoverageBoostTests (32 tests)
+ - Increase test coverage to 92.9% line, 88.8% branch (242 tests)
+ - Add docs/GUIDE.md with before/after usage comparisons
+ - Restructure samples: Console (feature-split files) and WebAPI (PATCH endpoints)
+ - Consolidate docs: RELEASE.md, TASK.md, DEPLOYMENT.md
+ - All existing v1.0.9 features remain compatible
  - Targets: netstandard2.0, netstandard2.1, net8.0, net9.0, net10.0</PackageReleaseNotes>
 
 		<!-- Repository Information -->

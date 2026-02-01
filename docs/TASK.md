@@ -1,108 +1,143 @@
-# Tasks (Short-term / Immediate)
+# Tasks & Roadmap
 
-Updated: 2025-08-24
+This document consolidates the project roadmap, TODO items, and short-term tasks.
 
-## Product scope (MVP = essential only)
+Last updated: 2026-02-02
 
-Keep the library simple by focusing on the most-used 20% of features:
+---
 
-- CreateMap<TSource, TDestination>
-- Map single object: MapInstance<TSource, TDestination>(source)
-- Map from object (reflection): Map<TDestination>(object source)
-- Map collections: MapCollection<TSource, TDestination>(IEnumerable<TSource>) → List<TDestination>
-- Ignore(d => d.Member)
-- ReverseMap() — basic inversion only
-- ForMember(...).MapFrom(...) — property-to-property mapping only (no complex resolvers)
+## Completed Features
 
-Non-goals (out of MVP scope):
-- Profiles, MapperConfiguration, DI integration, global options
-- Config validation (full AssertConfigurationIsValid)
-- BeforeMap/AfterMap, ForAllMembers, Include/IncludeBase, inheritance magic
-- Custom type converters/value resolvers/ConvertUsing
-- Naming conventions, flattening/unflattening helpers
-- IQueryable projection/expression mapping, DataReader/Enum extensions
-- Advanced circular reference management beyond a basic guard
+### v1.0.10 (in progress)
 
-## Feature comparison vs. AutoMapper (master/src)
+- [x] Patch 4 overloads: new object, type-inferred, collection, in-place (null-skip semantics)
+- [x] Remove MapTo from ISimpleMapper, replace with Map in-place overload
+- [x] ISimpleMapper: 8 methods (Map 4 + Patch 4)
+- [x] Test coverage increased to 92.9% line, 88.8% branch (242 tests)
+- [x] CoverageBoostTests.cs: 32 targeted coverage tests
+- [x] PatchTests.cs: 11 Patch overload + DI tests
+- [x] docs/GUIDE.md: Before/after usage guide with API reference
+- [x] Samples restructured: BasicSample → Console, WebApiSample → WebAPI
+- [x] Sample code split into feature files (Models, Map, Patch, Configuration, Comparison)
+- [x] PATCH endpoints added to both WebAPI controllers
+- [x] Consolidated docs: RELEASE.md, TASK.md, DEPLOYMENT.md
+- [x] README.md simplified with link to usage guide
 
-Implemented (MVP):
-- CreateMap<TSource, TDestination> basic configuration API
-- Map single object: MapInstance<TSource, TDestination>(source)
-- Map from object (reflection): Map<TDestination>(object source)
-- Map collections: MapCollection<TSource, TDestination>(IEnumerable<TSource>) → List<TDestination>
-- Expression-compiled mappers with caching per TypePair
-- ReverseMap() — basic reverse configuration (no per-member reverse rules)
-- Ignore(d => d.Member) — honored in compiled mapping
-- Circular-reference guard and destination instance caching gated by PreserveReferences (opt-in)
-- Public XML docs added for exposed APIs
+### v1.0.9 (2026-01-11)
 
-Partially implemented:
-- ForMember(...).MapFrom(...) — stored in config; compiled mapping path incomplete (some tests skipped)
-- MaxDepth(...) — tracked superficially; enforcement incomplete; test skipped
-- Collections — List<T> fully; arrays via reflection mapping; no HashSet/Dictionary/ICollection special handling
-- Null handling — simple propagation; no NullSubstitute/Condition
+- [x] ForMember Condition (conditional mapping)
+- [x] ForMember NullSubstitute (null value replacement)
+- [x] BeforeMap/AfterMap hooks
+- [x] ConstructUsing (custom object construction)
+- [x] net10.0 support
+- [x] Test coverage 87%
 
-Not implemented (out of scope for MVP, candidates for future):
-- Profiles/MapperConfiguration/ISimpleMapper abstraction and DI integration
-- AssertConfigurationIsValid and config validation
-- BeforeMap/AfterMap hooks, ForAllMembers
-- Include/IncludeBase and inheritance mapping
-- Custom type converters/value resolvers/ConvertUsing
-- Naming conventions, flattening/unflattening
-- Projection (IQueryable) and expression mapping
-- DataReader/Record mapping, Enum mapping extensions
-- Constructor parameter mapping and non-default constructors
-- Global options (AllowNullCollections, AllowNullDestinationValues, etc.)
+### v1.0.8 (2025-10-28)
 
-Test status highlights:
-- 30 passing, 5 skipped
-	- Skipped: MaxDepth guard, ForMember(MapFrom) [simple property], ForMember(MapFrom) [computed expression], ForMember(MapFrom) [collection projection], ReverseMap + Ignore semantics
+- [x] ISimpleMapper interface
+- [x] AddSimpleMapper() DI extension
+- [x] MapperConfiguration
+- [x] Profile support
+- [x] Assembly scanning
 
-Gap summary and priorities:
-P1) Wire up ForMember.MapFrom in compiled mapping (highest user value)
-P1) MaxDepth enforcement (per type-pair enter/exit tracking) and unskip test
-P1) Collections minimal expansion (ensure IEnumerable<T>→List<T>, arrays; keep HashSet/Dictionary for later)
-P2) ReverseMap + Ignore semantics (document policy and tests)
-P2) Validation API (lightweight AssertConfiguration) and DI helpers (optional)
+### v1.0.7 (2025-08-24)
 
-## Must-do (this sprint) — essentials only
-- [ ] Implement ForMember.MapFrom in compiled pipeline (property-level mapping only)
-- [ ] MaxDepth: implement correct per-type-pair depth tracking and guard; unskip test
-- [ ] Collections (minimal): validate IEnumerable<T>→List<T> and arrays; add unit tests for null/empty and simple/complex elements
-- [ ] Benchmarks: Create BenchmarkDotNet project (tests/Benchmarks); move perf assertions out of xUnit
-- [ ] Docs: Reflect MVP scope/limitations in README and releases
-- [ ] CI: Draft GitHub Actions workflow (build + test on push/PR; pack on tag)
-- [ ] NuGet: Include XML docs and SourceLink, publish snupkg
+- [x] PreserveReferences improvements
+- [x] Circular reference handling
+- [x] MaxDepth basic implementation
 
-## Quick wins (immediately applicable)
-- [x] Improve public XML docs (done) and ensure they ship in the NuGet package
-- [x] Fix Markdown generic rendering across docs (wrap `List<T>`, `Map<T>`, etc. in backticks)
-- [ ] Document performance test tolerances/flakiness and alternatives (BenchmarkDotNet)
-- [x] Update sample: add in-place update usage and wire into Program.cs
-- [x] PreserveReferences behavior corrections: gate cache/circular checks and depth by flag (v1.0.7)
-- [x] Release notes: add `docs/releases/v1.0.7.md`
+---
 
-## Backlog (short-term)
-- [ ] DI integration draft: IServiceCollection extensions (singleton engine)
-- [ ] Option: Make MapCollection return empty list instead of null (configurable)
-- [ ] Add tests for additional collection types (array/HashSet/Dictionary)
-- [ ] Basic configuration validation (detect unmapped members when requested)
-- [ ] ReverseMap + Ignore semantics: finalize policy and expand test coverage (P2)
-- [ ] Advanced circular ref/depth features beyond basic guard (only if strong demand)
+## Ready to Implement
 
-## Complexity guardrails (to avoid scope creep)
+### Configuration API Extensions
 
-- Public API surface stays minimal (no profiles/DI/validation in MVP)
-- No external runtime dependencies beyond BCL
-- Compiled mapping path should not add reflection at runtime beyond initial compile
-- No magic conventions beyond exact-name property matching
-- Keep feature flags out; prefer explicit, simple behavior
-- Each new feature must include: (a) unit tests, (b) XML docs, (c) ≤ ~150 LOC net increase per module
+- [ ] **ConvertUsing** - Full type conversion control
+  ```csharp
+  CreateMap<Order, OrderDto>()
+      .ConvertUsing(src => new OrderDto { ... });
+  ```
 
-## PR checklist (Definition of Done)
+- [ ] **TypeConverter** - Global type converters
+  ```csharp
+  Mapper.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+  ```
 
-- [ ] Fits MVP scope (or explicit “Backlog” label if not)
-- [ ] Tests: added/updated and green locally
-- [ ] XML docs for any public/protected API
-- [ ] No new warnings; TreatWarningsAsErrors passes
-- [ ] Docs updated (README/release notes/TASK if behavior changes)
+- [ ] **Rule-based Ignore/Include**
+  ```csharp
+  CreateMap<User, UserDto>()
+      .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+  ```
+
+### Collections/Type Support
+
+- [ ] **HashSet Mapping**
+- [ ] **Dictionary Mapping**
+- [ ] **Record Type Support** (auto-detect init-only, constructor parameter mapping)
+- [ ] **ReadOnlyCollection Support**
+- [ ] **Polymorphic Mapping** (Include/IncludeBase)
+
+---
+
+## Validation & Diagnostics
+
+- [ ] **Configuration Validation API** (`AssertConfigurationIsValid()`)
+- [ ] **Runtime Diagnostics** (log levels, EventSource, performance metrics)
+- [ ] **Unmapped Member Detection** (`ForAllOtherMembers`)
+
+---
+
+## Performance Optimization
+
+- [ ] **BenchmarkDotNet Integration** (micro-benchmark suite, baseline, CI regression detection)
+- [ ] **Cache Improvements** (warm-up API, capacity/expiration policy, metrics)
+- [ ] **Allocation Reduction** (streaming collection mapping, Span<T>, pooling)
+
+---
+
+## Integration & Platform
+
+- [ ] **SourceLink Integration** (source navigation during debugging)
+- [ ] **GitHub Actions CI/CD** (automated build/test/pack/release)
+
+---
+
+## Long-term Roadmap (3-6 months+)
+
+- [ ] **IQueryable Projections** (expression trees for EF Core)
+- [ ] **Source Generator** (compile-time mapper generation, AOT support)
+- [ ] **Rule-based Naming/Flattening** (`Parent.ChildId` <-> `ParentChildId`)
+- [ ] **Roslyn Analyzer Package** (unmapped members, null reference warnings)
+- [ ] **Documentation Site** (DocFX/Docusaurus)
+
+---
+
+## Bug Fixes & Improvements
+
+- [ ] **MaxDepth Full Implementation** (currently limited enforcement)
+- [ ] **Nullable Reference Types Support** (enable `<Nullable>enable</Nullable>`)
+- [x] **net9.0 DI Condition Fix** (2026-01-11)
+
+---
+
+## Quality Gates
+
+- Follow SemVer; provide migration guides for major API changes
+- Maintain code coverage targets (>= 90%) - Currently at 92.9%
+- Continuously verify multi-target compatibility (netstandard2.0/2.1, net8/9/10)
+
+---
+
+## Contribution Guide
+
+Before starting work:
+1. Create an issue to share your intent
+2. Write related tests
+3. Verify existing tests pass (`dotnet test`)
+4. Maintain code coverage at 90% or higher
+
+PR Checklist:
+- [ ] Add/modify tests
+- [ ] Add XML doc comments (public API)
+- [ ] Update RELEASE.md
+- [ ] No breaking changes (or documented)
