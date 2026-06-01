@@ -4,6 +4,29 @@ All release notes for Simple.AutoMapper, ordered from newest to oldest.
 
 ---
 
+## v1.0.12
+
+Release date: 2026-06-01
+
+### Highlights
+
+Adds `DateOnly` and `TimeOnly` mapping support, fixing a silent data-loss bug where those types were skipped entirely during mapping.
+
+### Bug Fixes
+
+- **`DateOnly` / `TimeOnly` silently skipped** — `DateOnly`, `TimeOnly`, and their nullable forms were not mapped at all; the destination was left at its default value (e.g. `0001-01-01` / `00:00:00`). As value types (structs) they matched neither `IsSimpleType` (which listed only `DateTime` / `DateTimeOffset` / `TimeSpan`) nor `IsComplexType` (which requires a reference type), so no mapping branch handled them.
+
+### New Features
+
+- **`DateOnly` / `TimeOnly` support** — both are now treated as simple types and copied by direct assignment; nullable `DateOnly?` / `TimeOnly?` are handled by the existing `Nullable<>` path.
+
+### Other
+
+- Added `[Owned]` entity mapping tests.
+- Disabled `.snupkg` generation (redundant with the embedded PDB).
+
+---
+
 ## v1.0.10
 
 Release date: 2026-02-02
@@ -144,7 +167,7 @@ services.AddSimpleMapper(typeof(UserMappingProfile).Assembly);
 
 ### Target Frameworks for DI
 
-- netstandard2.1, net8.0, net9.0 (netstandard2.0 excluded)
+- net8.0, net9.0 
 
 ### Breaking Changes
 
@@ -209,7 +232,7 @@ Release date: 2025-08-21
 
 Initial stable release. High-performance mapping library for .NET with expression tree compilation.
 
-Targets: netstandard2.0, netstandard2.1, net8.0, net9.0
+Targets: net8.0, net9.0
 
 ### Highlights
 

@@ -16,7 +16,7 @@ High-performance object mapping for .NET with expression tree compilation. Simpl
 dotnet add package Simple.AutoMapper
 ```
 
-**Target Frameworks:** netstandard2.0, netstandard2.1, net8.0, net9.0, net10.0
+**Target Frameworks:** net8.0, net9.0, net10.0
 
 ## Quick Start
 

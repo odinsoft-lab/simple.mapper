@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
         <!-- Target Framework -->
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 
 		<!-- Assembly Information -->
@@ -10,9 +10,9 @@
 		<RootNamespace>Simple.AutoMapper</RootNamespace>
 
 		<!-- Versioning -->
-		<Version>1.0.11</Version>
-		<AssemblyVersion>1.0.11.0</AssemblyVersion>
-		<FileVersion>1.0.11.0</FileVersion>
+		<Version>1.0.12</Version>
+		<AssemblyVersion>1.0.12.9</AssemblyVersion>
+		<FileVersion>1.0.12.9</FileVersion>
 
 		<!-- Package Information -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,16 +30,18 @@
 		<PackageIcon>Simple.AutoMapper.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>mapper;dto;object-mapping;expression-trees;mapping-engine;reflection-free;compiled-mapping;list-mapping</PackageTags>
-		<PackageReleaseNotes>v1.0.11
-  add primitive array (byte[]) mapping support
+		<PackageReleaseNotes>v1.0.12
+  Add DateOnly and TimeOnly mapping support
 
-  Fix ArgumentException when mapping byte[], int[], char[] and other
-  primitive arrays that were incorrectly treated as mappable collections.
+  DateOnly, TimeOnly, and their nullable forms are now recognized as simple types
+  and copied by direct assignment. Previously they were silently skipped: as structs
+  they matched neither IsSimpleType (which listed only DateTime/DateTimeOffset/TimeSpan)
+  nor IsComplexType (which requires a class), so no mapping branch handled them and the
+  destination was left at its default value (0001-01-01 / 00:00:00).
 
-  - Add IsPrimitiveArray() helper to detect simple-type arrays
-  - Exclude primitive arrays from IsComplexType and IsCollectionType
-  - Copy primitive arrays via Array.Clone() in compiled and reflection paths
-  - Add byte[] mapping samples (MemberEntity/MemberDto ProfilePhoto scenario)
+  - Add DateOnly and TimeOnly to IsSimpleType; nullable forms handled by the existing path
+  - Add [Owned] entity mapping tests
+  - Disable snupkg generation (redundant with embedded PDB)
   </PackageReleaseNotes>
 
 		<!-- Repository Information -->
@@ -82,7 +84,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     </ItemGroup>
 
-    <!-- DI support for netstandard2.1+ and .NET 8.0+ (excludes netstandard2.0) -->
+    <!-- DI support for .NET 8.0+ -->
     <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
     </ItemGroup>

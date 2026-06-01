@@ -556,9 +556,7 @@ builder.Services.AddSimpleMapper(typeof(MyProfile).Assembly);
 
 ### Supported Frameworks
 
-netstandard2.0, netstandard2.1, net8.0, net9.0, net10.0
-
-DI support: netstandard2.1+ only (netstandard2.0 excluded)
+net8.0, net9.0, net10.0
 
 ---
 

@@ -27,24 +27,24 @@
 
 .EXAMPLE
     # Quick publish (API key from environment variable)
-    .\publish-nuget.ps1
+    .\scripts\publish-nuget.ps1
 
 .EXAMPLE
     # Publish with API key
-    .\publish-nuget.ps1 -ApiKey "your-api-key-here"
+    .\scripts\publish-nuget.ps1 -ApiKey "your-api-key-here"
 
 .EXAMPLE
     # Test package creation without publishing
-    .\publish-nuget.ps1 -DryRun
+    .\scripts\publish-nuget.ps1 -DryRun
 
 .EXAMPLE
     # Quick publish, skip tests
-    .\publish-nuget.ps1 -SkipTests
+    .\scripts\publish-nuget.ps1 -SkipTests
 
 .EXAMPLE
     # Set API key as environment variable (recommended)
     $env:NUGET_API_KEY = "your-api-key-here"
-    .\publish-nuget.ps1
+    .\scripts\publish-nuget.ps1
 
 .NOTES
     Author: ODINSOFT
@@ -53,7 +53,7 @@
     Before first use:
     1. Get your API key from https://www.nuget.org/account/apikeys
     2. Set environment variable: $env:NUGET_API_KEY = "your-key"
-    3. Run: .\publish-nuget.ps1
+    3. Run: .\scripts\publish-nuget.ps1
 
 .LINK
     https://www.nuget.org/packages/Simple.AutoMapper/
@@ -93,8 +93,8 @@ Write-Info "========================================="
 Write-Info "  Simple.AutoMapper NuGet Publisher"
 Write-Info "========================================="
 Write-Host ""
-Write-Host "  Usage: .\publish-nuget.ps1 [-ApiKey KEY] [-DryRun] [-SkipTests] [-SkipBuild]"
-Write-Host "  Help:  Get-Help .\publish-nuget.ps1 -Detailed"
+Write-Host "  Usage: .\scripts\publish-nuget.ps1 [-ApiKey KEY] [-DryRun] [-SkipTests] [-SkipBuild]"
+Write-Host "  Help:  Get-Help .\scripts\publish-nuget.ps1 -Detailed"
 Write-Host ""
 
 # Check if API key is provided or exists in environment (skip for DryRun)
@@ -108,10 +108,10 @@ if (-not $DryRun) {
             Write-Host ""
             Write-Host "  Option 1 - Environment variable (recommended):"
             Write-Host "    `$env:NUGET_API_KEY = 'your-api-key'"
-            Write-Host "    .\publish-nuget.ps1"
+            Write-Host "    .\scripts\publish-nuget.ps1"
             Write-Host ""
             Write-Host "  Option 2 - Command parameter:"
-            Write-Host "    .\publish-nuget.ps1 -ApiKey 'your-api-key'"
+            Write-Host "    .\scripts\publish-nuget.ps1 -ApiKey 'your-api-key'"
             Write-Host ""
             Write-Host "  Get your API key from: https://www.nuget.org/account/apikeys"
             exit 1
@@ -222,7 +222,7 @@ if ($DryRun) {
     Write-Warn "DRY RUN COMPLETE - Package was NOT published"
     Write-Host ""
     Write-Host "To publish for real, run:"
-    Write-Host "  .\publish-nuget.ps1"
+    Write-Host "  .\scripts\publish-nuget.ps1"
     Write-Host ""
 } else {
     Write-Warn "Ready to publish to NuGet.org"

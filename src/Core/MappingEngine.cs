@@ -1157,6 +1157,8 @@ namespace Simple.AutoMapper.Core
                 || type == typeof(DateTimeOffset)
                 || type == typeof(TimeSpan)
                 || type == typeof(Guid)
+                || type == typeof(DateOnly)
+                || type == typeof(TimeOnly)
                 || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsSimpleType(type.GetGenericArguments()[0]));
         }
 

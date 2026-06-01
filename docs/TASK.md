@@ -124,7 +124,7 @@ Last updated: 2026-02-02
 
 - Follow SemVer; provide migration guides for major API changes
 - Maintain code coverage targets (>= 90%) - Currently at 92.9%
-- Continuously verify multi-target compatibility (netstandard2.0/2.1, net8/9/10)
+- Continuously verify multi-target compatibility (net8/9/10)
 
 ---
 
